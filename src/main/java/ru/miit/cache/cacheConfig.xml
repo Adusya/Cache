@@ -1,0 +1,37 @@
+<Cache>
+	<cacheDirectory>C:\Users\romanov\Desktop\cache\cached</cacheDirectory>
+	<dbCollectionName>cache</dbCollectionName>
+
+	<node name="general">
+		<capacity>20000</capacity>
+		<directory>general</directory>
+		<timeToLive>20</timeToLive>
+		<timeToIdle>0</timeToIdle>
+	</node>
+
+	<node name="images">
+		<capacity>450000</capacity>
+		<directory>images</directory>
+		<timeToLive>0</timeToLive>
+		<timeToIdle>10</timeToIdle>
+	</node>
+
+	<node name="videos">
+		<capacity>650000</capacity>
+		<directory>videos</directory>
+		<timeToLive>120</timeToLive>
+		<timeToIdle>20</timeToIdle>
+	</node>
+	
+	<mongo>
+		<dbName>Examples</dbName>
+		<dbCollectionName>cache</dbCollectionName>
+		<statisticsCollectionName>statistics</statisticsCollectionName>
+		<staticticsFieldName>stats</staticticsFieldName>
+		<ip>localhost</ip>
+		<port>27017</port>
+		<userName>cache</userName>
+		<userPassword>cachePass</userPassword>
+	</mongo>
+
+</Cache>

@@ -1,0 +1,35 @@
+package ru.miit.cache;
+
+public class CacheParamName {
+
+	final static public String id = "id"
+			, fileName = "fileName"
+			, size = "size"
+			, hash = "hash"
+			, location = "location"
+			, creatingTime = "creatingTime"
+			, updateTime = "updateTime"
+			, contentType = "contentType"
+			, capacity = "capacity"
+			, cacheDirectory = "cacheDirectory"
+			, dbCollection = "dbCollectionName"
+			, name = "name"
+			, node = "node"
+			, directory = "directory"
+			, type = "type"
+			, folder = "folder"
+			, timeToLive = "timeToLive"
+			, timeToIdle = "timeToIdle"
+			, cacheHits = "cacheHits"
+			, cacheMisses = "cacheMisses"
+			, general = "general"
+			, mongo = "mongo"			
+			, dbName = "dbName"
+			, dbCollectionName = "dbCollectionName"
+			, statisticsCollectionName = "statisticsCollectionName"
+			, staticticsFieldName = "staticticsFieldName"
+			, ip = "ip"
+			, port = "port"
+			, userName = "userName"
+			, userPassword = "userPassword";
+}
