@@ -23,8 +23,7 @@ public class MongoProperties {
 		port = Integer.parseInt(properties.get(MongoParamName.port).toString());
 		userName = properties.get(MongoParamName.userName).toString();
 		userPassword = properties.get(MongoParamName.userPassword).toString().toCharArray();
-		
-		System.out.println(ip + ":" + port + " " + userName + userPassword.toString());
+	
 	}
 	
 	public String getDbName() {

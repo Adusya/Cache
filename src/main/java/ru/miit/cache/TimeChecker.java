@@ -5,6 +5,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import ru.miit.cacheexception.CacheStartFailedException;
+
 public class TimeChecker {
 	
 	public ScheduledExecutorService ses = Executors.newScheduledThreadPool(2);
@@ -18,11 +20,13 @@ public class TimeChecker {
 				try {
 					cache = new Cache(cacheProperties);
 
-					List<Object> overdueList = cache.getOverdueList();
+						List<Object> overdueList = cache.getOverdueList();
 
-					for (Object ItemToDelete : overdueList) {
-						cache.deleteItem(ItemToDelete.toString());
-					}
+						for (Object ItemToDelete : overdueList) {
+							cache.deleteItem(ItemToDelete.toString());
+						}
+				} catch (CacheStartFailedException e) {
+					//Logger
 				} finally {
 					if (cache != null)
 						cache.close();
@@ -30,6 +34,7 @@ public class TimeChecker {
 
 			}
 		};
+		
 		ses.scheduleAtFixedRate(pinger, 5, 20, TimeUnit.SECONDS);
 	}
 	

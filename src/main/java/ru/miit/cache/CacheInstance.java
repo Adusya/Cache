@@ -1,12 +1,11 @@
 package ru.miit.cache;
 
 import ru.miit.cacheexception.CachePropertiesException;
+import ru.miit.cacheexception.CacheStartFailedException;
 
 public class CacheInstance {
 	
 	public CacheProperties cacheProperties;
-	
-	public String configFileName = "cacheConfig.xml";
 	
 	TimeChecker timeChecker;
 	
@@ -14,8 +13,8 @@ public class CacheInstance {
 		
 		this.cacheProperties = new CacheProperties(configFilePath);
 		
-		timeChecker = new TimeChecker();
-		timeChecker.start(cacheProperties);
+//		timeChecker = new TimeChecker();
+//		timeChecker.start(cacheProperties);
 		
 	}
 	
@@ -25,9 +24,9 @@ public class CacheInstance {
 		
 	}
 	
-	public Cache getCache() {
+	public Cache getCache() throws CacheStartFailedException {
 		
-		Cache cache = new Cache(cacheProperties);
+		Cache cache = new Cache(cacheProperties);		
 		
 		return cache;
 		

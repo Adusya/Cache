@@ -21,9 +21,9 @@ import com.mongodb.client.model.Filters;
 
 public class MongoMetadataStore implements MetadataStore {
 
-	final public MongoClient mongoClient;
-	final public MongoDatabase database;
-	final public String collectionName;
+	 public MongoClient mongoClient;
+	 public MongoDatabase database;
+	 public String collectionName;
 	public MongoCollection<Document> collection;
 	
 	private static String statsFieldName;
@@ -31,7 +31,7 @@ public class MongoMetadataStore implements MetadataStore {
 	
 	public MongoCollection<Document> statsCollection;
 
-	public MongoMetadataStore(MongoProperties mongoProperties) throws MongoException{
+	public MongoMetadataStore(MongoProperties mongoProperties) {
 
 		String userName = mongoProperties.getUserName();
 		char[] userPassword = mongoProperties.getUserPassword();
@@ -39,6 +39,7 @@ public class MongoMetadataStore implements MetadataStore {
 		String ip = mongoProperties.getIp();
 		int port = (int) mongoProperties.getPort();
 		
+		try {
 		
 		MongoCredential credential = MongoCredential.createCredential(userName, databaseName, userPassword);
 		mongoClient = new MongoClient(new ServerAddress(ip, port), Arrays.asList(credential));
@@ -50,6 +51,9 @@ public class MongoMetadataStore implements MetadataStore {
 		String statsCollectionName = mongoProperties.getStatisticsCollectionName();
 		statsFieldName = mongoProperties.getStaticticsFieldName();
 		statsCollection = database.getCollection(statsCollectionName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

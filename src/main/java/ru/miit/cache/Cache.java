@@ -40,18 +40,23 @@ public class Cache {
 	private MetadataStore metaDatabase;
 	private DiskCache diskCache;
 	private CacheProperties cacheProperties;
+	public Boolean isUp = false;
 
 	public ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 	
 	final static public String defaultNodeName = "general";
 
-	public Cache(CacheProperties cacheProperties) {
+	public Cache(CacheProperties cacheProperties) throws CacheStartFailedException {
 
 		this.cacheProperties = cacheProperties;
-		
-		metaDatabase = new MongoMetadataStore(cacheProperties.getMongoProperties());
+		try {
+//			metaDatabase = new MongoMetadataStore(cacheProperties.getMongoProperties());
+		} catch (Exception e) {
+			throw new CacheStartFailedException(e.getMessage());
+		}
 		
 		diskCache = new DiskCache(cacheProperties.getCacheDirectory());
+		isUp = true;
 
 	}
 
@@ -148,7 +153,7 @@ public class Cache {
 			metaDatabase.updateTime(idInCache);
 		} catch (IOException e) {
 
-			logger.log(Level.SEVERE, "Object cannot be taken from cache. " + e.toString());
+			logger.log(Level.SEVERE, "Object cannot be taken from ru.miit.cache. " + e.toString());
 			throw new CacheGetException(e.getMessage());
 		}
 
@@ -357,6 +362,16 @@ public class Cache {
 
 		return fos;
 	}
+	
+//	public boolean isAvailable() {
+//		
+//		if (metaDatabase.connectionIsUp()) {
+//			return true;
+//		} else {
+//			return false;
+//		}
+//		
+//	}
 
 	public CacheStatist getStatistics() throws CacheMetadataStoreConnectionException {
 
