@@ -42,28 +42,26 @@ public class Cache {
 	private CacheProperties cacheProperties;
 	public Boolean isUp = false;
 
-	public ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+	public ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
 	
 	final static public String defaultNodeName = "general";
 
 	public Cache(CacheProperties cacheProperties) throws CacheStartFailedException {
 
 		this.cacheProperties = cacheProperties;
-		try {
-//			metaDatabase = new MongoMetadataStore(cacheProperties.getMongoProperties());
-		} catch (Exception e) {
-			throw new CacheStartFailedException(e.getMessage());
-		}
-		
+
+		metaDatabase = new MongoMetadataStore(cacheProperties.getMongoProperties());
+
 		diskCache = new DiskCache(cacheProperties.getCacheDirectory());
-		isUp = true;
+		if (metaDatabase.connectionIsUp())
+			isUp = true;
 
 	}
 
 	public Boolean put(final String idinCache, Map<String, Object> parameters)
 			throws CacheMetadataStoreConnectionException {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -105,7 +103,7 @@ public class Cache {
 
 	public CompletableFuture<Boolean> putAsync(final String idInCache, final Map<String, Object> parameters) {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -126,7 +124,7 @@ public class Cache {
 	public void get(final String idInCache, final OutputStream out, HttpServletResponse response)
 			throws CacheGetException, CacheMetadataStoreConnectionException {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -161,7 +159,7 @@ public class Cache {
 
 	public boolean exists(final String id) throws CacheMetadataStoreConnectionException {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -226,7 +224,7 @@ public class Cache {
 				break;
 			} else {
 				lastUpdatedId = lastUpdated.toString();
-				deleteItem(lastUpdatedId);
+				deleteItemAsync(lastUpdatedId);
 			}
 
 		}
@@ -234,7 +232,7 @@ public class Cache {
 
 	public String getHashById(final String id) throws CacheMetadataStoreConnectionException {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -256,27 +254,38 @@ public class Cache {
 
 	}
 
-	public void deleteItem(final String id) throws CacheMetadataStoreConnectionException { // Уточнить, нормально ли так
-																							// делать
+	public Boolean deleteItem(final String id) throws CacheMetadataStoreConnectionException {
+																							
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
+		
+		boolean result = false;
 
 		try {
-			diskCache.delete(new File(metaDatabase.getValue(id, CacheParamName.location) + id));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			result = diskCache.delete(new File(metaDatabase.getValue(id, CacheParamName.location) + id));
+			metaDatabase.delete(id);
+		} catch (IOException | InterruptedException e) {
+			//Logger
+			Thread.currentThread().interrupt();
 		}
-		metaDatabase.delete(id);
 
+		return result;
+	}
+	
+	public CompletableFuture<Boolean> deleteItemAsync(final String id) {
+		
+		CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> deleteItem(id), executor);
+		
+		return future;
+		
 	}
 
 	public void applyDowntine(final long downtime) throws CacheMetadataStoreConnectionException {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -298,25 +307,6 @@ public class Cache {
 		metaDatabase.allowAccess(idInCache);
 		
 	}
-
-	public boolean connectionIsUp() {
-
-		if (metaDatabase == null) {
-			return false;
-		} else {
-			return metaDatabase.connectionIsUp();
-		}
-
-	}
-
-	// public CompletableFuture<Void> deleteItemAsync(final String id) {
-	//
-	// CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(()
-	// -> this.deleteItem(id));
-	//
-	// return completableFuture;
-	//
-	// }
 
 	private Map<String, String> getNodeNameMap() {
 
@@ -375,7 +365,7 @@ public class Cache {
 
 	public CacheStatist getStatistics() throws CacheMetadataStoreConnectionException {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -391,7 +381,7 @@ public class Cache {
 
 	public void increaseHits() throws CacheMetadataStoreConnectionException {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -402,7 +392,7 @@ public class Cache {
 
 	public void increaseMisses() throws CacheMetadataStoreConnectionException {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -413,7 +403,7 @@ public class Cache {
 
 	public void clear() throws CacheMetadataStoreConnectionException {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -422,7 +412,7 @@ public class Cache {
 
 		for (Object entry : fullList) {
 
-			deleteItem(entry.toString());
+			deleteItemAsync(entry.toString());
 
 		}
 
@@ -430,7 +420,7 @@ public class Cache {
 
 	public void clearStatistics() throws CacheMetadataStoreConnectionException {
 
-		if (!connectionIsUp()) {
+		if (!metaDatabase.connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
@@ -442,7 +432,9 @@ public class Cache {
 	public void close() {
 
 		executor.shutdown();
-		metaDatabase.close();
+		
+		if (metaDatabase.connectionIsUp())
+			metaDatabase.close();
 
 	}
 

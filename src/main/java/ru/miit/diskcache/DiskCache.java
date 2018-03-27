@@ -42,7 +42,7 @@ public class DiskCache {
 //
 //	}
 
-	public synchronized void get(final String fullFileName, OutputStream os) throws IOException {		
+	public void get(final String fullFileName, OutputStream os) throws IOException {		
 		
 		try (FileInputStream fis = new FileInputStream(fullFileName);
 	            FileChannel filechannel = fis.getChannel();
@@ -54,19 +54,20 @@ public class DiskCache {
 
 	}
 
-	public synchronized void delete(final File fileToDelete) throws IOException {
+	public boolean delete(final File fileToDelete) throws IOException, InterruptedException {
 
-		while(!fileToDelete.delete()) {
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		boolean result = fileToDelete.delete();
+		int i = 0;
+		while(!result && i < 5) {
+			Thread.sleep(500 * i);
+
+			i++;
+			result = fileToDelete.delete();
 		}
-
+		return result;
 	}
 
-	public synchronized boolean exists(final File file) {
+	public boolean exists(final File file) {
 
 		return file.exists();
 

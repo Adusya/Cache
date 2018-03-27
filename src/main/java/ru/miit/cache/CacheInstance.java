@@ -13,8 +13,8 @@ public class CacheInstance {
 		
 		this.cacheProperties = new CacheProperties(configFilePath);
 		
-//		timeChecker = new TimeChecker();
-//		timeChecker.start(cacheProperties);
+		timeChecker = new TimeChecker();
+		timeChecker.start(cacheProperties);
 		
 	}
 	
