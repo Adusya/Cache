@@ -26,8 +26,8 @@ public class CacheProperties {
 	public String defaultNodeName = "general";
 	public long defaultNodeCapacity = 500 * 1000;
 	public String defaultNodeDirectiry = File.separator + "general";
-	public Long defaultTimeToLive = 120L * 1000;
-	public Long defaultTimeToIdle = 100L * 1000;
+	public Long defaultTimeToLive = 0L;
+	public Long defaultTimeToIdle = 0L;
 
 	public String cacheDirectory;
 	public String dbCollectionName;
@@ -146,30 +146,31 @@ public class CacheProperties {
 		
 		Map<String, Object> mongoPropertiesMap = new HashMap<>();
 		
-		Object dbName = properties.getElementsByTagName(CacheParamName.dbName).item(0).getTextContent();
-		Object dbCollectionName = properties.getElementsByTagName(CacheParamName.dbCollectionName).item(0).getTextContent();
-		Object statisticsCollectionName = properties.getElementsByTagName(CacheParamName.statisticsCollectionName).item(0).getTextContent();
-		Object staticticsFieldName = properties.getElementsByTagName(CacheParamName.staticticsFieldName).item(0).getTextContent();
-		Object ip = properties.getElementsByTagName(CacheParamName.ip).item(0).getTextContent();
-		Object port = properties.getElementsByTagName(CacheParamName.port).item(0).getTextContent();
-		Object userName = properties.getElementsByTagName(CacheParamName.userName).item(0).getTextContent();
-		Object userPassword = properties.getElementsByTagName(CacheParamName.userPassword).item(0).getTextContent();
-				
-		if (dbName == null || dbCollectionName == null || statisticsCollectionName == null || 
-				staticticsFieldName == null || ip == null 
-				|| port == null || userName == null || userPassword == null) {
+		try {
+			Object dbName = properties.getElementsByTagName(CacheParamName.dbName).item(0).getTextContent();
+			Object dbCollectionName = properties.getElementsByTagName(CacheParamName.dbCollectionName).item(0).getTextContent();
+			Object statisticsCollectionName = properties.getElementsByTagName(CacheParamName.statisticsCollectionName).item(0).getTextContent();
+			Object staticticsFieldName = properties.getElementsByTagName(CacheParamName.staticticsFieldName).item(0).getTextContent();
+			Object ip = properties.getElementsByTagName(CacheParamName.ip).item(0).getTextContent();
+			Object port = properties.getElementsByTagName(CacheParamName.port).item(0).getTextContent();
+			Object userName = properties.getElementsByTagName(CacheParamName.userName).item(0).getTextContent();
+			Object userPassword = properties.getElementsByTagName(CacheParamName.userPassword).item(0).getTextContent();
+			Object errorsLimit = properties.getElementsByTagName(CacheParamName.errorsLimit).item(0).getTextContent();
 			
-			throw new CachePropertiesException("You must fill all of the mongoDB properties");
+			mongoPropertiesMap.put(CacheParamName.dbName, dbName);
+			mongoPropertiesMap.put(CacheParamName.dbCollectionName, dbCollectionName);
+			mongoPropertiesMap.put(CacheParamName.statisticsCollectionName, statisticsCollectionName);
+			mongoPropertiesMap.put(CacheParamName.staticticsFieldName, staticticsFieldName);
+			mongoPropertiesMap.put(CacheParamName.ip, ip);
+			mongoPropertiesMap.put(CacheParamName.port, port);
+			mongoPropertiesMap.put(CacheParamName.userName, userName);
+			mongoPropertiesMap.put(CacheParamName.userPassword, userPassword);
+			mongoPropertiesMap.put(CacheParamName.errorsLimit, errorsLimit);
+				
+		} catch(NullPointerException e) {
+			
+			throw new CachePropertiesException("You must fill all of the mongoDB properties: " + e.getMessage());
 		}
-		
-		mongoPropertiesMap.put(CacheParamName.dbName, dbName);
-		mongoPropertiesMap.put(CacheParamName.dbCollectionName, dbCollectionName);
-		mongoPropertiesMap.put(CacheParamName.statisticsCollectionName, statisticsCollectionName);
-		mongoPropertiesMap.put(CacheParamName.staticticsFieldName, staticticsFieldName);
-		mongoPropertiesMap.put(CacheParamName.ip, ip);
-		mongoPropertiesMap.put(CacheParamName.port, port);
-		mongoPropertiesMap.put(CacheParamName.userName, userName);
-		mongoPropertiesMap.put(CacheParamName.userPassword, userPassword);
 		
 		mongoProperties = new MongoProperties(mongoPropertiesMap);
 		

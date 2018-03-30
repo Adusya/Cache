@@ -29,6 +29,7 @@ import ru.miit.cacheexception.CacheGetException;
 import ru.miit.cacheexception.CacheMetadataStoreConnectionException;
 import ru.miit.cacheexception.CachePropertiesException;
 import ru.miit.cacheexception.CacheStartFailedException;
+import ru.miit.circiutbreaker.CircuitBreaker;
 import ru.miit.diskcache.DiskCache;
 import ru.miit.metadatastore.MetadataStore;
 import ru.miit.metadatastore.MongoMetadataStore;
@@ -46,15 +47,21 @@ public class Cache {
 	
 	final static public String defaultNodeName = "general";
 
-	public Cache(CacheProperties cacheProperties) throws CacheStartFailedException {
+	public Cache(CacheProperties cacheProperties) {
 
 		this.cacheProperties = cacheProperties;
 
-		metaDatabase = new MongoMetadataStore(cacheProperties.getMongoProperties());
+		CircuitBreaker circuitBreaker = new CircuitBreaker(cacheProperties.getMongoProperties());
+		
+		try {
+			metaDatabase = circuitBreaker.getMetadataStore();
+			isUp = true;
+		} catch (CacheStartFailedException e) {
+			isUp = false;
+			//Logger
+		}
 
 		diskCache = new DiskCache(cacheProperties.getCacheDirectory());
-		if (metaDatabase.connectionIsUp())
-			isUp = true;
 
 	}
 
@@ -89,14 +96,10 @@ public class Cache {
 		parameters.put(CacheParamName.timeToIdle, node.getTimeToIdle());
 
 		parameters.put(CacheParamName.id, idinCache);
-		
-		checkForFolder(location);
 
 		trimToSize(parameters);
 		
 		metaDatabase.put(idinCache, parameters);
-
-		// diskCache.put(location, id, inIs);
 
 		return true;
 	}
@@ -114,7 +117,7 @@ public class Cache {
 			throw new IllegalArgumentException("The object id can't be empty. ");
 
 		}
-
+		
 		CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> put(idInCache, parameters), executor);
 
 		return future;
@@ -302,11 +305,11 @@ public class Cache {
 		
 	}
 	
-	public void allowAccess(String idInCache) {
-		
-		metaDatabase.allowAccess(idInCache);
-		
-	}
+//	public void allowAccess(String idInCache) {
+//		
+//		metaDatabase.allowAccess(idInCache);
+//		
+//	}
 
 	private Map<String, String> getNodeNameMap() {
 
@@ -330,25 +333,13 @@ public class Cache {
 
 	public FileOutputStream getFileOutputStream(String nodeName, String idInCache) throws FileNotFoundException {
 
-		String fileLocation = getFileLocationByNodeName(nodeName) + idInCache;
+		String location = getFileLocationByNodeName(nodeName);
+		
+		checkForFolder(location);
+		
+		String fullLocation = getFileLocationByNodeName(nodeName) + idInCache;
 
-		FileOutputStream fos = new FileOutputStream(new File(fileLocation));
-
-		// try (FileChannel fch = FileChannel.open(new File(fileLocation).toPath(),
-		// StandardOpenOption.CREATE,
-		// StandardOpenOption.WRITE)) {
-		// try (FileLock lock = fch.tryLock()) {
-		// if (lock != null) {
-		// // you can directly write into the channel
-		// // but in case you really need an OutputStream:
-		// OutputStream fos = Channels.newOutputStream(fch);
-		// } else
-		// System.out.println("couldn't acquire lock");
-		// }
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+		FileOutputStream fos = new FileOutputStream(new File(fullLocation));
 
 		return fos;
 	}

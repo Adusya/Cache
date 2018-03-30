@@ -57,7 +57,7 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 
 	@Override
-	public synchronized void put(final String id, final Map<String, Object> parameters) {
+	public void put(final String id, final Map<String, Object> parameters) {
 
 		Document document = new Document(MongoParamName.id, id)
 				.append(MongoParamName.fileName, parameters.get(MongoParamName.fileName))
@@ -103,10 +103,10 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 
 	@Override
-	public synchronized boolean exists(final String id) {
+	public boolean exists(final String id) {
 		Bson filter = new Document(MongoParamName.id, id);
-		Object pending =  getValue(id, MongoParamName.pending);
-		if (collection.find(filter).first() == null || pending == null || (Boolean) pending == true) {
+//		Object pending =  getValue(id, MongoParamName.pending);
+		if (collection.find(filter).first() == null) {// || pending == null || (Boolean) pending == true) {
 			return false;
 		}
 		else {
@@ -115,7 +115,7 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 
 	@Override
-	public synchronized Object getValue(final String id, final String field) {
+	public Object getValue(final String id, final String field) {
 
 		Bson filter = new Document(MongoParamName.id, id);
 		Document document = collection.find(filter).first();
@@ -132,7 +132,7 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 
 	@Override
-	public synchronized void delete(final String id) {
+	public void delete(final String id) {
 
 		Bson filter = new Document(MongoParamName.id, id);
 
@@ -141,13 +141,13 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 
 	@Override
-	public synchronized void update(final Document document, final String id) {
+	public void update(final Document document, final String id) {
 		Bson filter = new Document(MongoParamName.id, id);
 		collection.updateOne(filter, new Document("$set", document));
 	}
 
 	@Override
-	public synchronized void reduceSize() {
+	public void reduceSize() {
 
 		Bson command = new Document("compact", collectionName);
 		database.runCommand(command);
@@ -196,7 +196,7 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 
 	@Override
-	public synchronized Object getLastUpdated() {
+	public Object getLastUpdated() {
 
 		// 1-по убыванию, -1-возрастанию
 		Bson sort = new Document(MongoParamName.updateTime, 1);
@@ -214,7 +214,7 @@ public class MongoMetadataStore implements MetadataStore {
 		}
 	}
 
-	public synchronized Object getLastUpdated(final String nodeName) {
+	public Object getLastUpdated(final String nodeName) {
 
 		// 1-по убыванию, -1-возрастанию
 		Bson sort = new Document(MongoParamName.updateTime, 1);
@@ -234,7 +234,7 @@ public class MongoMetadataStore implements MetadataStore {
 
 	}
 
-	public synchronized List<Object> getOverdueList() {
+	public List<Object> getOverdueList() {
 
 		List<Object> overdueList = new ArrayList<Object>();
 		
@@ -266,7 +266,7 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 
 	@Override
-	public synchronized List<Object> getfullList() {
+	public List<Object> getfullList() {
 
 		List<Object> fullList = new ArrayList<Object>();
 
@@ -286,7 +286,7 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 
 	@Override
-	public synchronized void updateTime(final String id) {
+	public void updateTime(final String id) {
 
 		Document document = new Document(MongoParamName.id, id).append(MongoParamName.updateTime,
 				System.currentTimeMillis());
@@ -296,7 +296,7 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 	
 	@Override
-	public synchronized void applyDowntime(final long downtime) {
+	public void applyDowntime(final long downtime) {
 		
 		Bson filter = new Document();
 		
@@ -308,18 +308,18 @@ public class MongoMetadataStore implements MetadataStore {
 		collection.updateMany(filter, updateInc);
 	}
 	
-	@Override
-	public void allowAccess(String idInCache) {
-		
-		Document document = new Document(MongoParamName.id, idInCache).append(MongoParamName.pending,
-				Boolean.FALSE);
-		
-		update(document, idInCache);
-		
-	}
+//	@Override
+//	public void allowAccess(String idInCache) {
+//		
+//		Document document = new Document(MongoParamName.id, idInCache).append(MongoParamName.pending,
+//				Boolean.FALSE);
+//		
+//		update(document, idInCache);
+//		
+//	}
 	
 	@Override
-	public synchronized void increaseHits() {
+	public void increaseHits() {
 		
 		Bson filter = new Document(MongoParamName.id, statsFieldName);
 		
@@ -332,7 +332,7 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 	
 	@Override
-	public synchronized void increaseMisses() {
+	public void increaseMisses() {
 		
 		Bson filter = new Document(MongoParamName.id, statsFieldName);
 		
@@ -345,7 +345,7 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 	
 	@Override
-	public synchronized Map<String, Object> getStatistics() {
+	public Map<String, Object> getStatistics() {
 		
 		Bson filter = new Document(MongoParamName.id, statsFieldName);
 		
@@ -380,7 +380,7 @@ public class MongoMetadataStore implements MetadataStore {
 	}
 	
 	@Override
-	public synchronized void clearStatistics() {
+	public void clearStatistics() {
 		
 		Bson filter = new Document(MongoParamName.id, statsFieldName);
 		

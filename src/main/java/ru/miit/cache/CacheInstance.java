@@ -9,13 +9,17 @@ public class CacheInstance {
 	
 	TimeChecker timeChecker;
 	
-	public CacheInstance(String configFilePath) throws CachePropertiesException {
+	public CacheInstance(String configFilePath) throws CacheStartFailedException {
 		
-		this.cacheProperties = new CacheProperties(configFilePath);
-		
-		timeChecker = new TimeChecker();
-		timeChecker.start(cacheProperties);
-		
+		try {
+			this.cacheProperties = new CacheProperties(configFilePath);
+			
+			timeChecker = new TimeChecker();
+			timeChecker.start(cacheProperties);
+			
+		} catch (CachePropertiesException e) {
+			throw new CacheStartFailedException("Cache cannot start. " + e.getMessage());
+		}
 	}
 	
 	public CacheProperties getCacheProperties() {
@@ -24,7 +28,7 @@ public class CacheInstance {
 		
 	}
 	
-	public Cache getCache() throws CacheStartFailedException {
+	public Cache getCache() {
 		
 		Cache cache = new Cache(cacheProperties);		
 		

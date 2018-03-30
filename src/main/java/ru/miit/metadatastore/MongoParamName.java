@@ -28,6 +28,7 @@ public class MongoParamName {
 			, ip = "ip"
 			, port = "port"
 			, userName = "userName"
-			, userPassword = "userPassword";
+			, userPassword = "userPassword"
+			, errorsLimit = "errorsLimit";
 	
 }

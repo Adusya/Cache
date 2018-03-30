@@ -2,6 +2,8 @@ package ru.miit.metadatastore;
 
 import java.util.Map;
 
+import ru.miit.cacheexception.CachePropertiesException;
+
 public class MongoProperties {
 
 	public String dbName;
@@ -12,20 +14,34 @@ public class MongoProperties {
 	public int port;
 	public String userName;
 	public char[] userPassword;
-	
-	public MongoProperties(Map<String, Object> properties) {
+	public int errorsLimit;
+
+	public MongoProperties(Map<String, Object> properties) throws CachePropertiesException {
 		
 		dbName = properties.get(MongoParamName.dbName).toString();
 		dbCollectionName = properties.get(MongoParamName.dbCollectionName).toString();
 		statisticsCollectionName = properties.get(MongoParamName.statisticsCollectionName).toString();
 		staticticsFieldName = properties.get(MongoParamName.staticticsFieldName).toString();
 		ip = properties.get(MongoParamName.ip).toString();
-		port = Integer.parseInt(properties.get(MongoParamName.port).toString());
+		
 		userName = properties.get(MongoParamName.userName).toString();
 		userPassword = properties.get(MongoParamName.userPassword).toString().toCharArray();
+		
+		try {
+			
+			port = Integer.parseInt(properties.get(MongoParamName.port).toString());
+			errorsLimit = Integer.parseInt(properties.get(MongoParamName.port).toString());
+
+		} catch (NumberFormatException e) {
+			
+			throw new CachePropertiesException("Wrong format of properties. " + e.getMessage());
+		}
 	
 	}
 	
+	public int getErrorsLimit() {
+		return errorsLimit;
+	}
 	public String getDbName() {
 		return dbName;
 	}
