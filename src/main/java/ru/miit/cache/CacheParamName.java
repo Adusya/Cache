@@ -32,5 +32,8 @@ public class CacheParamName {
 			, port = "port"
 			, userName = "userName"
 			, userPassword = "userPassword"
-			, errorsLimit = "errorsLimit";
+			, errorsLimit = "errorsLimit"
+			, timeChecker ="timeChecker"
+			, enable ="enable"
+			, checkPeriod ="checkPeriod";
 }

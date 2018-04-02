@@ -2,6 +2,7 @@ package ru.miit.cache;
 
 import ru.miit.cacheexception.CachePropertiesException;
 import ru.miit.cacheexception.CacheStartFailedException;
+import ru.miit.timechecker.TimeChecker;
 
 public class CacheInstance {
 	
@@ -14,7 +15,7 @@ public class CacheInstance {
 		try {
 			this.cacheProperties = new CacheProperties(configFilePath);
 			
-			timeChecker = new TimeChecker();
+			timeChecker = new TimeChecker(cacheProperties.getTimeCheckerProperties());
 			timeChecker.start(cacheProperties);
 			
 		} catch (CachePropertiesException e) {

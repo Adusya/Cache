@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 
 import ru.miit.cacheexception.CachePropertiesException;
 import ru.miit.metadatastore.MongoProperties;
+import ru.miit.timechecker.TimeCheckerProperties;
 
 public class CacheProperties {
 
@@ -28,12 +29,17 @@ public class CacheProperties {
 	public String defaultNodeDirectiry = File.separator + "general";
 	public Long defaultTimeToLive = 0L;
 	public Long defaultTimeToIdle = 0L;
+	
+	public boolean defaultTimeCheckerEnable = false;
+	public long defaultTimeCheckerPeriod = 60L;
 
 	public String cacheDirectory;
 	public String dbCollectionName;
 	public Map<String, CacheNode> nodesCollection;
 
 	public MongoProperties mongoProperties;
+	
+	public TimeCheckerProperties timeCheckerProperties;
 
 	// TODO сделать проверку на валидность конф файла
 	public CacheProperties(final String confifFilePath) throws CachePropertiesException {
@@ -67,6 +73,10 @@ public class CacheProperties {
 		Element mongoProperties = (Element) document.getDocumentElement().getElementsByTagName(CacheParamName.mongo)
 				.item(0);
 		setMongoProperties(mongoProperties);
+		
+		Element timeCheckerProperties = (Element) document.getDocumentElement().getElementsByTagName(CacheParamName.timeChecker)
+				.item(0);
+		setTimeCheckerProperties(timeCheckerProperties);
 	}
 
 	public String getDbCollectionName() {
@@ -174,6 +184,35 @@ public class CacheProperties {
 		
 		mongoProperties = new MongoProperties(mongoPropertiesMap);
 		
+		
+	}
+	
+	public TimeCheckerProperties getTimeCheckerProperties() {
+		return timeCheckerProperties;
+	}
+
+	public void setTimeCheckerProperties(final Element properties) {
+		
+		boolean enable;
+		long checkPeriod;
+		
+		try {
+			enable = Boolean.parseBoolean(properties.getElementsByTagName(CacheParamName.enable).item(0).getTextContent().toString());
+		} catch (NullPointerException e) {
+			
+			enable = defaultTimeCheckerEnable;
+			//Logger
+		}
+		
+		try {
+			checkPeriod = Long.parseLong(properties.getElementsByTagName(CacheParamName.checkPeriod).item(0).getTextContent().toString());
+		} catch (NullPointerException | NumberFormatException e) {
+			
+			checkPeriod = defaultTimeCheckerPeriod;
+			//Logger
+		}
+		
+		timeCheckerProperties = new TimeCheckerProperties(enable, checkPeriod);
 		
 	}
 

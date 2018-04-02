@@ -7,7 +7,7 @@ import ru.miit.metadatastore.MongoProperties;
 
 public class CircuitBreaker {
 
-	CircuitBreakerState state = CircuitBreakerState.CLOSED;
+	CircuitBreakerState state;
 	
 	private Long lastStateChanged;
 	private Long timeToHalfOpenWait = 20000L;
@@ -22,6 +22,7 @@ public class CircuitBreaker {
 		this.mongoProperties = mongoProperties;
 		errorsLimit = mongoProperties.getErrorsLimit();
 		
+		state = CircuitBreakerState.CLOSED;
 	}
 			
 	public MetadataStore getMetadataStore() throws CacheStartFailedException {
@@ -74,6 +75,7 @@ public class CircuitBreaker {
 		state = CircuitBreakerState.OPEN;
 		lastStateChanged = System.currentTimeMillis();
 		errorsCount = 0;
+		System.out.println("state: " + state + "   errorsNum: " + errorsCount);
 		
 	}
 	
@@ -87,6 +89,7 @@ public class CircuitBreaker {
 			state = CircuitBreakerState.OPEN;
 			
 		}
+		System.out.println("state: " + state + "   errorsNum: " + errorsCount);
 		
 	}
 	
@@ -94,6 +97,7 @@ public class CircuitBreaker {
 		
 		errorsCount = 0;
 		state = CircuitBreakerState.CLOSED;
+		System.out.println("state: " + state + "   errorsNum: " + errorsCount);
 		
 	}		
 	

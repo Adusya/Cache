@@ -11,6 +11,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
@@ -42,7 +43,8 @@ public class MongoMetadataStore implements MetadataStore {
 		try {
 		
 		MongoCredential credential = MongoCredential.createCredential(userName, databaseName, userPassword);
-		mongoClient = new MongoClient(new ServerAddress(ip, port), Arrays.asList(credential));
+		MongoClientOptions options =  new MongoClientOptions.Builder().socketTimeout(2000).build();
+		mongoClient = new MongoClient(new ServerAddress(ip, port), Arrays.asList(credential), options);
 
 		database = mongoClient.getDatabase(databaseName);
 		collectionName = mongoProperties.getDbCollectionName();
