@@ -35,5 +35,6 @@ public class CacheParamName {
 			, errorsLimit = "errorsLimit"
 			, timeChecker ="timeChecker"
 			, enable ="enable"
-			, checkPeriod ="checkPeriod";
+			, checkPeriod ="checkPeriod"
+			, waitingConnectionTime = "waitingConnectionTime";
 }

@@ -22,13 +22,15 @@ import com.mongodb.client.model.Filters;
 
 public class MongoMetadataStore implements MetadataStore {
 
-	 public MongoClient mongoClient;
-	 public MongoDatabase database;
-	 public String collectionName;
+	public MongoClient mongoClient;
+	public MongoDatabase database;
+	public String collectionName;
 	public MongoCollection<Document> collection;
 	
 	private static String statsFieldName;
 	private static final String whereOperator = "$where";
+	
+	public int waitingConnectionTime;
 	
 	public MongoCollection<Document> statsCollection;
 
@@ -39,11 +41,10 @@ public class MongoMetadataStore implements MetadataStore {
 		String databaseName = mongoProperties.getDbName();
 		String ip = mongoProperties.getIp();
 		int port = (int) mongoProperties.getPort();
-		
-		try {
+		waitingConnectionTime = mongoProperties.getWaitingConnectionTime();
 		
 		MongoCredential credential = MongoCredential.createCredential(userName, databaseName, userPassword);
-		MongoClientOptions options =  new MongoClientOptions.Builder().socketTimeout(2000).build();
+		MongoClientOptions options =  new MongoClientOptions.Builder().serverSelectionTimeout(waitingConnectionTime).build();
 		mongoClient = new MongoClient(new ServerAddress(ip, port), Arrays.asList(credential), options);
 
 		database = mongoClient.getDatabase(databaseName);
@@ -53,9 +54,7 @@ public class MongoMetadataStore implements MetadataStore {
 		String statsCollectionName = mongoProperties.getStatisticsCollectionName();
 		statsFieldName = mongoProperties.getStaticticsFieldName();
 		statsCollection = database.getCollection(statsCollectionName);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
 	}
 
 	@Override

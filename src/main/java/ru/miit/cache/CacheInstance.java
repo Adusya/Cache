@@ -15,8 +15,11 @@ public class CacheInstance {
 		try {
 			this.cacheProperties = new CacheProperties(configFilePath);
 			
-			timeChecker = new TimeChecker(cacheProperties.getTimeCheckerProperties());
-			timeChecker.start(cacheProperties);
+			
+			if (cacheProperties.getTimeCheckerProperties().isEnable()) {
+				timeChecker = new TimeChecker(cacheProperties.getTimeCheckerProperties());
+				timeChecker.start(cacheProperties);
+			}
 			
 		} catch (CachePropertiesException e) {
 			throw new CacheStartFailedException("Cache cannot start. " + e.getMessage());

@@ -65,7 +65,7 @@ public class CircuitBreaker {
 	}
 	
 	private boolean isTimeExpired() {
-		
+		System.out.println("timeIsExpired: " + (lastStateChanged + timeToHalfOpenWait < System.currentTimeMillis()));
 		return lastStateChanged + timeToHalfOpenWait < System.currentTimeMillis();
 		
 	}
@@ -75,7 +75,7 @@ public class CircuitBreaker {
 		state = CircuitBreakerState.OPEN;
 		lastStateChanged = System.currentTimeMillis();
 		errorsCount = 0;
-		System.out.println("state: " + state + "   errorsNum: " + errorsCount);
+		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		
 	}
 	
@@ -89,7 +89,7 @@ public class CircuitBreaker {
 			state = CircuitBreakerState.OPEN;
 			
 		}
-		System.out.println("state: " + state + "   errorsNum: " + errorsCount);
+		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		
 	}
 	
@@ -97,7 +97,7 @@ public class CircuitBreaker {
 		
 		errorsCount = 0;
 		state = CircuitBreakerState.CLOSED;
-		System.out.println("state: " + state + "   errorsNum: " + errorsCount);
+		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		
 	}		
 	

@@ -29,6 +29,7 @@ public class MongoParamName {
 			, port = "port"
 			, userName = "userName"
 			, userPassword = "userPassword"
-			, errorsLimit = "errorsLimit";
+			, errorsLimit = "errorsLimit"
+			, waitingConnectionTime = "waitingConnectionTime";
 	
 }

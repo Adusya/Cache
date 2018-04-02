@@ -15,6 +15,7 @@ public class MongoProperties {
 	public String userName;
 	public char[] userPassword;
 	public int errorsLimit;
+	public int waitingConnectionTime;
 
 	public MongoProperties(Map<String, Object> properties) throws CachePropertiesException {
 		
@@ -31,6 +32,7 @@ public class MongoProperties {
 			
 			port = Integer.parseInt(properties.get(MongoParamName.port).toString());
 			errorsLimit = Integer.parseInt(properties.get(MongoParamName.port).toString());
+			waitingConnectionTime = Integer.parseInt(properties.get(MongoParamName.waitingConnectionTime).toString());
 
 		} catch (NumberFormatException e) {
 			
@@ -66,6 +68,10 @@ public class MongoProperties {
 	public char[] getUserPassword() {
 		return userPassword;
 	}
+	public int getWaitingConnectionTime() {
+		return waitingConnectionTime;
+	}
+
 
 	
 }

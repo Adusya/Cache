@@ -166,6 +166,8 @@ public class CacheProperties {
 			Object userName = properties.getElementsByTagName(CacheParamName.userName).item(0).getTextContent();
 			Object userPassword = properties.getElementsByTagName(CacheParamName.userPassword).item(0).getTextContent();
 			Object errorsLimit = properties.getElementsByTagName(CacheParamName.errorsLimit).item(0).getTextContent();
+			Object waitingConnectionTime = properties.getElementsByTagName(CacheParamName.waitingConnectionTime).item(0).getTextContent();
+			
 			
 			mongoPropertiesMap.put(CacheParamName.dbName, dbName);
 			mongoPropertiesMap.put(CacheParamName.dbCollectionName, dbCollectionName);
@@ -176,6 +178,7 @@ public class CacheProperties {
 			mongoPropertiesMap.put(CacheParamName.userName, userName);
 			mongoPropertiesMap.put(CacheParamName.userPassword, userPassword);
 			mongoPropertiesMap.put(CacheParamName.errorsLimit, errorsLimit);
+			mongoPropertiesMap.put(CacheParamName.waitingConnectionTime, waitingConnectionTime);
 				
 		} catch(NullPointerException e) {
 			
