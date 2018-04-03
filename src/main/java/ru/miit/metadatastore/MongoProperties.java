@@ -31,7 +31,7 @@ public class MongoProperties {
 		try {
 			
 			port = Integer.parseInt(properties.get(MongoParamName.port).toString());
-			errorsLimit = Integer.parseInt(properties.get(MongoParamName.port).toString());
+			errorsLimit = Integer.parseInt(properties.get(MongoParamName.errorsLimit).toString());
 			waitingConnectionTime = Integer.parseInt(properties.get(MongoParamName.waitingConnectionTime).toString());
 
 		} catch (NumberFormatException e) {

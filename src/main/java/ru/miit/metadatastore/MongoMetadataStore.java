@@ -30,8 +30,6 @@ public class MongoMetadataStore implements MetadataStore {
 	private static String statsFieldName;
 	private static final String whereOperator = "$where";
 	
-	public int waitingConnectionTime;
-	
 	public MongoCollection<Document> statsCollection;
 
 	public MongoMetadataStore(MongoProperties mongoProperties) {
@@ -41,7 +39,7 @@ public class MongoMetadataStore implements MetadataStore {
 		String databaseName = mongoProperties.getDbName();
 		String ip = mongoProperties.getIp();
 		int port = (int) mongoProperties.getPort();
-		waitingConnectionTime = mongoProperties.getWaitingConnectionTime();
+		int waitingConnectionTime = mongoProperties.getWaitingConnectionTime() * 1000;
 		
 		MongoCredential credential = MongoCredential.createCredential(userName, databaseName, userPassword);
 		MongoClientOptions options =  new MongoClientOptions.Builder().serverSelectionTimeout(waitingConnectionTime).build();

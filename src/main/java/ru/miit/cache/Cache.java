@@ -47,11 +47,9 @@ public class Cache {
 	
 	final static public String defaultNodeName = "general";
 
-	public Cache(CacheProperties cacheProperties) {
+	public Cache(CircuitBreaker circuitBreaker, CacheProperties cacheProperties) {
 
 		this.cacheProperties = cacheProperties;
-
-		CircuitBreaker circuitBreaker = new CircuitBreaker(cacheProperties.getMongoProperties());
 		
 		try {
 			metaDatabase = circuitBreaker.getMetadataStore();
@@ -136,7 +134,6 @@ public class Cache {
 			logger.log(Level.SEVERE, "Illegal object id value. Id is null.");
 			throw new IllegalArgumentException("The object id can't be empty. ");
 		}
-
 		Map<String, Object> parameters = metaDatabase.getParameters(idInCache);
 
 		String location = parameters.get(CacheParamName.location).toString();

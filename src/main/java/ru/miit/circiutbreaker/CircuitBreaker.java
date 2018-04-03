@@ -12,7 +12,7 @@ public class CircuitBreaker {
 	private Long lastStateChanged;
 	private Long timeToHalfOpenWait = 20000L;
 	
-	MongoProperties mongoProperties;
+	public MongoProperties mongoProperties;
 	
 	private int errorsCount = 0;
 	private int errorsLimit;
@@ -72,32 +72,33 @@ public class CircuitBreaker {
 	
 	private void reOpen() {
 		
+		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		state = CircuitBreakerState.OPEN;
 		lastStateChanged = System.currentTimeMillis();
 		errorsCount = 0;
-		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		
 	}
 	
 	private void increaseErrorsNumber() {
 		
 		errorsCount++;
+		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		
 		if (errorsCount >= errorsLimit) {
 			
 			errorsCount = 0;
+			lastStateChanged = System.currentTimeMillis();
 			state = CircuitBreakerState.OPEN;
 			
 		}
-		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		
 	}
 	
 	private void reset() {
 		
+		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		errorsCount = 0;
 		state = CircuitBreakerState.CLOSED;
-		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		
 	}		
 	

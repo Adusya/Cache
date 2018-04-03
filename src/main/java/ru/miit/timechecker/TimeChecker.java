@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import ru.miit.cache.Cache;
 import ru.miit.cache.CacheProperties;
 import ru.miit.cacheexception.CacheStartFailedException;
+import ru.miit.circiutbreaker.CircuitBreaker;
 
 public class TimeChecker {
 
@@ -21,14 +22,14 @@ public class TimeChecker {
 		
 	}
 
-	public void start(CacheProperties cacheProperties) {
+	public void start(CircuitBreaker circuitBreaker, CacheProperties cacheProperties) {
 
 		Runnable pinger = new Runnable() {
 			public void run() {
 
 				Cache cache = null;
 				try {
-					cache = new Cache(cacheProperties);
+					cache = new Cache(circuitBreaker, cacheProperties);
 	
 					List<Object> overdueList = cache.getOverdueList();
 	
