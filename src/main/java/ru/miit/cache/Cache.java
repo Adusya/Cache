@@ -5,34 +5,22 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.mongodb.MongoException;
-
 import ru.miit.cacheexception.CacheGetException;
 import ru.miit.cacheexception.CacheMetadataStoreConnectionException;
-import ru.miit.cacheexception.CachePropertiesException;
 import ru.miit.cacheexception.CacheStartFailedException;
 import ru.miit.circiutbreaker.CircuitBreaker;
 import ru.miit.diskcache.DiskCache;
 import ru.miit.metadatastore.MetadataStore;
-import ru.miit.metadatastore.MongoMetadataStore;
 
 public class Cache {
 
@@ -217,9 +205,10 @@ public class Cache {
 		String cacheNodeLocation = diskCache.directory + folder;
 
 		String lastUpdatedId;
+		Object lastUpdated;
 		while (capacity < getSize(new File(cacheNodeLocation)) + ((long) fileSize)) {
 
-			Object lastUpdated = metaDatabase.getLastUpdated(node.getNodeName());
+			lastUpdated = metaDatabase.getLastUpdated(node.getNodeName());
 			if (lastUpdated == null) {
 				break;
 			} else {
@@ -409,11 +398,10 @@ public class Cache {
 	
 	public boolean connectionIsUp() {
 		
-		if (metaDatabase != null) {
-			
-			return metaDatabase.connectionIsUp();
+		if (metaDatabase == null) {
+			return false;			
 		} else {
-			return false;
+			return metaDatabase.connectionIsUp();
 		}
 		
 	}

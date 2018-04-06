@@ -16,6 +16,7 @@ public class MongoProperties {
 	public char[] userPassword;
 	public int errorsLimit;
 	public int waitingConnectionTime;
+	public Long periodCheckConnectionTime;
 
 	public MongoProperties(Map<String, Object> properties) throws CachePropertiesException {
 		
@@ -33,6 +34,7 @@ public class MongoProperties {
 			port = Integer.parseInt(properties.get(MongoParamName.port).toString());
 			errorsLimit = Integer.parseInt(properties.get(MongoParamName.errorsLimit).toString());
 			waitingConnectionTime = Integer.parseInt(properties.get(MongoParamName.waitingConnectionTime).toString());
+			periodCheckConnectionTime = Long.parseLong(properties.get(MongoParamName.periodCheckConnectionTime).toString());
 
 		} catch (NumberFormatException e) {
 			
@@ -41,6 +43,9 @@ public class MongoProperties {
 	
 	}
 	
+	public long getPeriodCheckConnectionTime() {
+		return periodCheckConnectionTime;
+	}
 	public int getErrorsLimit() {
 		return errorsLimit;
 	}

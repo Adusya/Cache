@@ -10,7 +10,7 @@ public class CircuitBreaker {
 	CircuitBreakerState state;
 	
 	private Long lastStateChanged;
-	private Long timeToHalfOpenWait = 20000L;
+	private Long timeToHalfOpenWait;
 	
 	public MongoProperties mongoProperties;
 	
@@ -21,7 +21,7 @@ public class CircuitBreaker {
 		
 		this.mongoProperties = mongoProperties;
 		errorsLimit = mongoProperties.getErrorsLimit();
-		
+		timeToHalfOpenWait = mongoProperties.getPeriodCheckConnectionTime();
 		state = CircuitBreakerState.CLOSED;
 	}
 			

@@ -30,6 +30,7 @@ public class MongoParamName {
 			, userName = "userName"
 			, userPassword = "userPassword"
 			, errorsLimit = "errorsLimit"
-			, waitingConnectionTime = "waitingConnectionTime";
+			, waitingConnectionTime = "waitingConnectionTime"
+			, periodCheckConnectionTime = "periodCheckConnectionTime";
 	
 }

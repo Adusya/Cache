@@ -134,9 +134,9 @@ public class CacheProperties {
 			String directory = File.separator
 					+ node.getElementsByTagName(CacheParamName.directory).item(0).getTextContent();
 			Long timeToLive = Long
-					.parseLong(node.getElementsByTagName(CacheParamName.timeToLive).item(0).getTextContent()) * 1000L;
+					.parseLong(node.getElementsByTagName(CacheParamName.timeToLive).item(0).getTextContent());
 			Long timeToIdle = Long
-					.parseLong(node.getElementsByTagName(CacheParamName.timeToIdle).item(0).getTextContent()) * 1000L;
+					.parseLong(node.getElementsByTagName(CacheParamName.timeToIdle).item(0).getTextContent());
 
 			CacheNode cacheNode = new CacheNode(nameNode, capacity, directory, timeToLive, timeToIdle);
 
@@ -167,7 +167,7 @@ public class CacheProperties {
 			Object userPassword = properties.getElementsByTagName(CacheParamName.userPassword).item(0).getTextContent();
 			Object errorsLimit = properties.getElementsByTagName(CacheParamName.errorsLimit).item(0).getTextContent();
 			Object waitingConnectionTime = properties.getElementsByTagName(CacheParamName.waitingConnectionTime).item(0).getTextContent();
-			
+			Object periodCheckConnectionTime = properties.getElementsByTagName(CacheParamName.periodCheckConnectionTime).item(0).getTextContent();
 			
 			mongoPropertiesMap.put(CacheParamName.dbName, dbName);
 			mongoPropertiesMap.put(CacheParamName.dbCollectionName, dbCollectionName);
@@ -179,6 +179,7 @@ public class CacheProperties {
 			mongoPropertiesMap.put(CacheParamName.userPassword, userPassword);
 			mongoPropertiesMap.put(CacheParamName.errorsLimit, errorsLimit);
 			mongoPropertiesMap.put(CacheParamName.waitingConnectionTime, waitingConnectionTime);
+			mongoPropertiesMap.put(CacheParamName.periodCheckConnectionTime, periodCheckConnectionTime);
 				
 		} catch(NullPointerException e) {
 			

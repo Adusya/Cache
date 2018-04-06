@@ -46,7 +46,7 @@ public class TimeChecker {
 			}
 		};
 
-		ses.scheduleAtFixedRate(pinger, 5, timeCheckerProperties.getCheckPeriod(), TimeUnit.SECONDS);
+		ses.scheduleAtFixedRate(pinger, 5000, timeCheckerProperties.getCheckPeriod(), TimeUnit.MILLISECONDS);
 	}
 
 	public void close() {

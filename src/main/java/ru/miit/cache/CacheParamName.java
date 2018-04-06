@@ -36,5 +36,6 @@ public class CacheParamName {
 			, timeChecker ="timeChecker"
 			, enable ="enable"
 			, checkPeriod ="checkPeriod"
-			, waitingConnectionTime = "waitingConnectionTime";
+			, waitingConnectionTime = "waitingConnectionTime"
+			, periodCheckConnectionTime = "periodCheckConnectionTime";
 }

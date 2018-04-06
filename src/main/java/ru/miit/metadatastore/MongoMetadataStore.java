@@ -39,7 +39,7 @@ public class MongoMetadataStore implements MetadataStore {
 		String databaseName = mongoProperties.getDbName();
 		String ip = mongoProperties.getIp();
 		int port = (int) mongoProperties.getPort();
-		int waitingConnectionTime = mongoProperties.getWaitingConnectionTime() * 1000;
+		int waitingConnectionTime = mongoProperties.getWaitingConnectionTime();
 		
 		MongoCredential credential = MongoCredential.createCredential(userName, databaseName, userPassword);
 		MongoClientOptions options =  new MongoClientOptions.Builder().serverSelectionTimeout(waitingConnectionTime).build();
@@ -74,7 +74,7 @@ public class MongoMetadataStore implements MetadataStore {
 			update(document, id);
 		} else {
 			document.append(MongoParamName.creatingTime, System.currentTimeMillis());
-			document.append(MongoParamName.pending, Boolean.TRUE);
+//			document.append(MongoParamName.pending, Boolean.TRUE);
 			collection.insertOne(document);
 		}
 
