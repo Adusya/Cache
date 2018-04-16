@@ -31,7 +31,7 @@ public class Cache {
 	private CacheProperties cacheProperties;
 	public Boolean isUp = false;
 
-	public ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
+	public ScheduledExecutorService executor = Executors.newScheduledThreadPool(100);
 	
 	final static public String defaultNodeName = "general";
 
@@ -156,6 +156,7 @@ public class Cache {
 
 			String location = metaDatabase.getValue(id, CacheParamName.location).toString();
 			File file = new File(location + id);
+			System.out.println("exists?: " + file.getPath());
 
 			if (diskCache.exists(file)) {
 
@@ -194,26 +195,25 @@ public class Cache {
 		// нахождение размера файла
 		int fileSize = Integer.parseInt(parameters.get(CacheParamName.size).toString());
 
-		// определение объема нода
+		// определение объема нода 
 		Map<String, CacheNode> nodesCollection = cacheProperties.getCacheNodes();
 
 		CacheNode node = cacheProperties.getNodeByName(parameters.get(CacheParamName.type).toString());
+		
 		Long capacity = node.getCapacity();
-
+		
 		// местонахождение нода
 		String folder = parameters.get(CacheParamName.folder).toString();
 		String cacheNodeLocation = diskCache.directory + folder;
 
-		String lastUpdatedId;
-		Object lastUpdated;
+		Object lastUpdatedId;
 		while (capacity < getSize(new File(cacheNodeLocation)) + ((long) fileSize)) {
 
-			lastUpdated = metaDatabase.getLastUpdated(node.getNodeName());
-			if (lastUpdated == null) {
+			lastUpdatedId = metaDatabase.getLastUpdated(node.getNodeName());
+			if (lastUpdatedId == null) {
 				break;
 			} else {
-				lastUpdatedId = lastUpdated.toString();
-				deleteItemAsync(lastUpdatedId);
+				deleteItem(lastUpdatedId.toString());
 			}
 
 		}
@@ -250,18 +250,31 @@ public class Cache {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
+
+		File fileToDelete = new File(metaDatabase.getValue(id, CacheParamName.location) + id);
 		
-		boolean result = false;
-
-		try {
-			result = diskCache.delete(new File(metaDatabase.getValue(id, CacheParamName.location) + id));
-			metaDatabase.delete(id);
-		} catch (IOException | InterruptedException e) {
-			//Logger
-			Thread.currentThread().interrupt();
+		System.out.println("file to delete: " + fileToDelete.getPath());
+		
+		boolean result = diskCache.delete(fileToDelete);
+		int i = 0;
+		
+		while(!result && i < 5 && fileToDelete.exists()) {
+			try {
+				Thread.sleep(1000 * i);
+			} catch (InterruptedException e) {
+				// Logger
+			}
+			System.out.println(fileToDelete.getPath() + " didnt successfully deleted: " + i);
+			i++;
+			result = diskCache.delete(fileToDelete);
 		}
-
+		
+		if (result && !fileToDelete.exists()) {
+			metaDatabase.delete(id);
+		}
+		
 		return result;
+
 	}
 	
 	public CompletableFuture<Boolean> deleteItemAsync(final String id) {

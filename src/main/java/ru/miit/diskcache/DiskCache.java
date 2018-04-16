@@ -54,17 +54,9 @@ public class DiskCache {
 
 	}
 
-	public boolean delete(final File fileToDelete) throws IOException, InterruptedException {
+	public boolean delete(final File fileToDelete) {
 
-		boolean result = fileToDelete.delete();
-		int i = 0;
-		while(!result && i < 5) {
-			Thread.sleep(500 * i);
-
-			i++;
-			result = fileToDelete.delete();
-		}
-		return result;
+		return fileToDelete.delete();
 	}
 
 	public boolean exists(final File file) {

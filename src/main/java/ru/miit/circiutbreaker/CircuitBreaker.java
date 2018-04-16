@@ -65,14 +65,12 @@ public class CircuitBreaker {
 	}
 	
 	private boolean isTimeExpired() {
-		System.out.println("timeIsExpired: " + (lastStateChanged + timeToHalfOpenWait < System.currentTimeMillis()));
 		return lastStateChanged + timeToHalfOpenWait < System.currentTimeMillis();
 		
 	}
 	
 	private void reOpen() {
 		
-		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		state = CircuitBreakerState.OPEN;
 		lastStateChanged = System.currentTimeMillis();
 		errorsCount = 0;
@@ -82,7 +80,6 @@ public class CircuitBreaker {
 	private void increaseErrorsNumber() {
 		
 		errorsCount++;
-		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		
 		if (errorsCount >= errorsLimit) {
 			
@@ -96,7 +93,6 @@ public class CircuitBreaker {
 	
 	private void reset() {
 		
-		System.out.println("state: " + state.state + "   errorsNum: " + errorsCount);
 		errorsCount = 0;
 		state = CircuitBreakerState.CLOSED;
 		
