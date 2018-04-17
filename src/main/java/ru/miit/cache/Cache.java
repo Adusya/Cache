@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,7 +52,7 @@ public class Cache {
 
 	}
 
-	public Boolean put(final String idinCache, Map<String, Object> parameters)
+	public Boolean put(final String idInCache, Map<String, Object> parameters)
 			throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
@@ -59,7 +60,7 @@ public class Cache {
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
-		if (idinCache == null) {
+		if (idInCache == null) {
 
 			logger.log(Level.SEVERE, "Illegal object id value. Id is null.");
 			throw new IllegalArgumentException("The object id can't be empty");
@@ -81,11 +82,11 @@ public class Cache {
 		parameters.put(CacheParamName.timeToLive, node.getTimeToLive());
 		parameters.put(CacheParamName.timeToIdle, node.getTimeToIdle());
 
-		parameters.put(CacheParamName.id, idinCache);
-
+		parameters.put(CacheParamName.id, idInCache);
+		System.out.println(idInCache + " started to insert. Before trim to size");
 		trimToSize(parameters);
-		
-		metaDatabase.put(idinCache, parameters);
+		System.out.println(idInCache + " started to insert. After trim to size");
+		metaDatabase.put(idInCache, parameters);
 
 		return true;
 	}
@@ -422,7 +423,11 @@ public class Cache {
 	public void close() {
 
 		executor.shutdown();
-		
+		try {
+			executor.awaitTermination(3000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			// Logger
+		}
 		if (metaDatabase != null)
 			metaDatabase.close();
 

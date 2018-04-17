@@ -76,6 +76,7 @@ public class MongoMetadataStore implements MetadataStore {
 			document.append(MongoParamName.creatingTime, System.currentTimeMillis());
 //			document.append(MongoParamName.pending, Boolean.TRUE);
 			collection.insertOne(document);
+			System.out.println(id + " Successfully inserted");
 		}
 
 	} 

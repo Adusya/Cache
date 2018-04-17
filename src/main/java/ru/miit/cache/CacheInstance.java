@@ -16,7 +16,6 @@ public class CacheInstance {
 		
 		try {
 			this.cacheProperties = new CacheProperties(configFilePath);
-			
 			circuitBreaker = new CircuitBreaker(cacheProperties.getMongoProperties());
 			
 			if (cacheProperties.getTimeCheckerProperties().isEnable()) {
