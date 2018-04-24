@@ -22,7 +22,7 @@ public interface MetadataStore {
 		void close();
 		boolean connectionIsUp();
 		void applyDowntime(final long downtime);
-//		void allowAccess(String idInCache);
+		void allowAccess(String idInCache);
 		void increaseHits();
 		void increaseMisses();
 		Map<String, Object> getStatistics();

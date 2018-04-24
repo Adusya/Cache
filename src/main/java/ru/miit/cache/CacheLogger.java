@@ -16,30 +16,26 @@ public class CacheLogger {
 	private static final String DataSourceLogLevel = "java:comp/env/cacheLogger/level";
 	private static final String DataSourceFileLocation = "java:comp/env/cacheLogger/fileLocation";
 
-	public static Logger logger;
-
 	public static Logger getLogger(String className) {
 
+//		Logger logger = Logger.getLogger(className);
+//		
+//		if (logger.getHandlers().length == 0) {
+//			
+//			FileHandler handler = null;
+//			try {
+//				handler = new FileHandler(getLogFileLocation(), 1024 * 1024, 10, true);
+//				Formatter formatter = new SimpleFormatter();
+//				handler.setFormatter(formatter);
+//				handler.setLevel(Level.parse(getLevel()));
+//			} catch (SecurityException | IOException e) {
+//				throw new RuntimeException(e);
+//			}
+//			
+//			logger.addHandler(handler);
+//		}
 		
-		
-		logger = Logger.getLogger(className);
-		
-		if (logger.getHandlers().length == 0) {
-			
-			FileHandler handler = null;
-			try {
-				handler = new FileHandler(getLogFileLocation(), 1024 * 1024, 10, true);
-				Formatter formatter = new SimpleFormatter();
-				handler.setFormatter(formatter);
-				handler.setLevel(Level.parse(getLevel()));
-			} catch (SecurityException | IOException e) {
-				throw new RuntimeException(e);
-			}
-			
-			logger.addHandler(handler);
-		}
-		
-		return logger;
+		return Logger.getLogger(className);
 
 	}
 	

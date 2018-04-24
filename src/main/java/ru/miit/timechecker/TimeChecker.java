@@ -7,14 +7,13 @@ import java.util.concurrent.TimeUnit;
 
 import ru.miit.cache.Cache;
 import ru.miit.cache.CacheProperties;
-import ru.miit.cacheexception.CacheStartFailedException;
 import ru.miit.circiutbreaker.CircuitBreaker;
 
 public class TimeChecker {
 
 	TimeCheckerProperties timeCheckerProperties;
 	
-	public ScheduledExecutorService ses = Executors.newScheduledThreadPool(2);
+	public ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 	
 	public TimeChecker (TimeCheckerProperties timeCheckerProperties) {
 		

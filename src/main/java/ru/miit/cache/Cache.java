@@ -25,14 +25,14 @@ import ru.miit.metadatastore.MetadataStore;
 
 public class Cache {
 
-	private final Logger logger = CacheLogger.getLogger(Cache.class.getName());
+	private final Logger loggerCache = CacheLogger.getLogger(Cache.class.getName());
 
 	private MetadataStore metaDatabase;
 	private DiskCache diskCache;
 	private CacheProperties cacheProperties;
 	public Boolean isUp = false;
 
-	public ScheduledExecutorService executor = Executors.newScheduledThreadPool(100);
+	public ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
 	
 	final static public String defaultNodeName = "general";
 
@@ -45,7 +45,7 @@ public class Cache {
 			isUp = true;
 		} catch (CacheStartFailedException e) {
 			isUp = false;
-			//Logger
+			loggerCache.log(Level.SEVERE, "Cache didn't start. " + e.getMessage());
 		}
 
 		diskCache = new DiskCache(cacheProperties.getCacheDirectory());
@@ -56,13 +56,13 @@ public class Cache {
 			throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
 		if (idInCache == null) {
 
-			logger.log(Level.SEVERE, "Illegal object id value. Id is null.");
+			loggerCache.log(Level.SEVERE, "Illegal object id value. Id is null.");
 			throw new IllegalArgumentException("The object id can't be empty");
 
 		}
@@ -83,10 +83,10 @@ public class Cache {
 		parameters.put(CacheParamName.timeToIdle, node.getTimeToIdle());
 
 		parameters.put(CacheParamName.id, idInCache);
-		System.out.println(idInCache + " started to insert. Before trim to size");
-		trimToSize(parameters);
-		System.out.println(idInCache + " started to insert. After trim to size");
+		
 		metaDatabase.put(idInCache, parameters);
+		
+		trimToSize(parameters);
 
 		return true;
 	}
@@ -94,13 +94,13 @@ public class Cache {
 	public CompletableFuture<Boolean> putAsync(final String idInCache, final Map<String, Object> parameters) {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
 		if (idInCache == null) {
 
-			logger.log(Level.SEVERE, "Illegal object id value. Id is null.");
+			loggerCache.log(Level.SEVERE, "Illegal object id value. Id is null.");
 			throw new IllegalArgumentException("The object id can't be empty. ");
 
 		}
@@ -115,12 +115,12 @@ public class Cache {
 			throws CacheGetException, CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
 		if (idInCache == null) {
-			logger.log(Level.SEVERE, "Illegal object id value. Id is null.");
+			loggerCache.log(Level.SEVERE, "Illegal object id value. Id is null.");
 			throw new IllegalArgumentException("The object id can't be empty. ");
 		}
 		Map<String, Object> parameters = metaDatabase.getParameters(idInCache);
@@ -140,7 +140,7 @@ public class Cache {
 			metaDatabase.updateTime(idInCache);
 		} catch (IOException e) {
 
-			logger.log(Level.SEVERE, "Object cannot be taken from ru.miit.cache. " + e.toString());
+			loggerCache.log(Level.SEVERE, "Object cannot be taken from ru.miit.cache. " + e.toString());
 			throw new CacheGetException(e.getMessage());
 		}
 
@@ -149,7 +149,7 @@ public class Cache {
 	public boolean exists(final String id) throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
@@ -157,7 +157,6 @@ public class Cache {
 
 			String location = metaDatabase.getValue(id, CacheParamName.location).toString();
 			File file = new File(location + id);
-			System.out.println("exists?: " + file.getPath());
 
 			if (diskCache.exists(file)) {
 
@@ -194,7 +193,7 @@ public class Cache {
 	private void trimToSize(final Map<String, Object> parameters) {
 
 		// нахождение размера файла
-		int fileSize = Integer.parseInt(parameters.get(CacheParamName.size).toString());
+		long fileSize = Long.parseLong(parameters.get(CacheParamName.size).toString());
 
 		// определение объема нода 
 		Map<String, CacheNode> nodesCollection = cacheProperties.getCacheNodes();
@@ -208,7 +207,7 @@ public class Cache {
 		String cacheNodeLocation = diskCache.directory + folder;
 
 		Object lastUpdatedId;
-		while (capacity < getSize(new File(cacheNodeLocation)) + ((long) fileSize)) {
+		while (capacity < getSize(new File(cacheNodeLocation)) + fileSize) {
 
 			lastUpdatedId = metaDatabase.getLastUpdated(node.getNodeName());
 			if (lastUpdatedId == null) {
@@ -223,7 +222,7 @@ public class Cache {
 	public String getHashById(final String id) throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
@@ -248,14 +247,12 @@ public class Cache {
 																							
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
 		File fileToDelete = new File(metaDatabase.getValue(id, CacheParamName.location) + id);
-		
-		System.out.println("file to delete: " + fileToDelete.getPath());
-		
+				
 		boolean result = diskCache.delete(fileToDelete);
 		int i = 0;
 		
@@ -263,14 +260,13 @@ public class Cache {
 			try {
 				Thread.sleep(1000 * i);
 			} catch (InterruptedException e) {
-				// Logger
+				loggerCache.log(Level.SEVERE, e.getMessage());
 			}
-			System.out.println(fileToDelete.getPath() + " didnt successfully deleted: " + i);
 			i++;
 			result = diskCache.delete(fileToDelete);
 		}
 		
-		if (result && !fileToDelete.exists()) {
+		if (result || !fileToDelete.exists()) {
 			metaDatabase.delete(id);
 		}
 		
@@ -289,7 +285,7 @@ public class Cache {
 	public void applyDowntine(final long downtime) throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
@@ -305,11 +301,11 @@ public class Cache {
 		
 	}
 	
-//	public void allowAccess(String idInCache) {
-//		
-//		metaDatabase.allowAccess(idInCache);
-//		
-//	}
+	public void allowAccess(String idInCache) {
+		
+		metaDatabase.allowAccess(idInCache);
+		
+	}
 
 	private Map<String, String> getNodeNameMap() {
 
@@ -347,7 +343,7 @@ public class Cache {
 	public CacheStatist getStatistics() throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
@@ -363,7 +359,7 @@ public class Cache {
 	public void increaseHits() throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
@@ -374,7 +370,7 @@ public class Cache {
 	public void increaseMisses() throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
@@ -385,7 +381,7 @@ public class Cache {
 	public void clear() throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
@@ -402,7 +398,7 @@ public class Cache {
 	public void clearStatistics() throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
-			logger.log(Level.SEVERE, "requested connection is closed.");
+			loggerCache.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
 
@@ -426,7 +422,7 @@ public class Cache {
 		try {
 			executor.awaitTermination(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			// Logger
+			loggerCache.log(Level.SEVERE, e.getMessage());
 		}
 		if (metaDatabase != null)
 			metaDatabase.close();

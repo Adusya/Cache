@@ -76,7 +76,6 @@ public class MongoMetadataStore implements MetadataStore {
 			document.append(MongoParamName.creatingTime, System.currentTimeMillis());
 //			document.append(MongoParamName.pending, Boolean.TRUE);
 			collection.insertOne(document);
-			System.out.println(id + " Successfully inserted");
 		}
 
 	} 
@@ -105,7 +104,7 @@ public class MongoMetadataStore implements MetadataStore {
 	@Override
 	public boolean exists(final String id) {
 		Bson filter = new Document(MongoParamName.id, id);
-//		Object pending =  getValue(id, MongoParamName.pending);
+		Object pending =  getValue(id, MongoParamName.pending);
 		if (collection.find(filter).first() == null) {// || pending == null || (Boolean) pending == true) {
 			return false;
 		}
@@ -308,15 +307,15 @@ public class MongoMetadataStore implements MetadataStore {
 		collection.updateMany(filter, updateInc);
 	}
 	
-//	@Override
-//	public void allowAccess(String idInCache) {
-//		
-//		Document document = new Document(MongoParamName.id, idInCache).append(MongoParamName.pending,
-//				Boolean.FALSE);
-//		
-//		update(document, idInCache);
-//		
-//	}
+	@Override
+	public void allowAccess(String idInCache) {
+		
+		Document document = new Document(MongoParamName.id, idInCache).append(MongoParamName.pending,
+				Boolean.FALSE);
+		
+		update(document, idInCache);
+		
+	}
 	
 	@Override
 	public void increaseHits() {

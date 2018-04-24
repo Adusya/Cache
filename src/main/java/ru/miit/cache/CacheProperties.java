@@ -22,7 +22,7 @@ import ru.miit.timechecker.TimeCheckerProperties;
 
 public class CacheProperties {
 
-	private Logger logger = CacheLogger.getLogger(CacheProperties.class.getName());
+	private Logger loggerCacheProperties = CacheLogger.getLogger(CacheProperties.class.getName());
 
 	public String defaultNodeName = "general";
 	public long defaultNodeCapacity = 500 * 1000;
@@ -53,7 +53,7 @@ public class CacheProperties {
 			document = db.parse(xmlFile);
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 
-			logger.log(Level.WARNING, "System cannot read configuration file. " + e.toString());
+			loggerCacheProperties.log(Level.WARNING, "System cannot read configuration file. " + e.toString());
 			throw new CachePropertiesException(e.getMessage());
 		}
 
@@ -205,7 +205,7 @@ public class CacheProperties {
 		} catch (NullPointerException e) {
 			
 			enable = defaultTimeCheckerEnable;
-			//Logger
+			loggerCacheProperties.log(Level.WARNING, "Field 'enable' of timeChecker cannot be null. " + e.getMessage());
 		}
 		
 		try {
@@ -213,7 +213,7 @@ public class CacheProperties {
 		} catch (NullPointerException | NumberFormatException e) {
 			
 			checkPeriod = defaultTimeCheckerPeriod;
-			//Logger
+			loggerCacheProperties.log(Level.WARNING, "Field 'checkPeriod' of timeChecker cannot be initialized. " + e.getMessage());
 		}
 		
 		timeCheckerProperties = new TimeCheckerProperties(enable, checkPeriod);
