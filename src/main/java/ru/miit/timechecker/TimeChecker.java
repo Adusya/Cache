@@ -25,21 +25,26 @@ public class TimeChecker {
 
 		Runnable pinger = new Runnable() {
 			public void run() {
-
+				System.out.println("start");
 				Cache cache = null;
 				try {
 					cache = new Cache(circuitBreaker, cacheProperties);
-	
+					System.out.println("inited cache");
 					List<Object> overdueList = cache.getOverdueList();
-	
+					System.out.println("got overdueList");
 					for (Object ItemToDelete : overdueList) {
-						if (cache.isUp)
+						System.out.println("ready to delete");
+						if (cache.isUp) {
+							System.out.println("deleting...");
 							cache.deleteItem(ItemToDelete.toString());
+						}
 					}
 				} finally {
 					
-					if (cache != null)
+					if (cache != null) {
+						System.out.println("closing cache");
 						cache.close();
+					}
 				}
 
 			}
