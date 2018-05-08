@@ -42,8 +42,8 @@ public class MongoMetadataStore implements MetadataStore {
 		int waitingConnectionTime = mongoProperties.getWaitingConnectionTime();
 		
 		MongoCredential credential = MongoCredential.createCredential(userName, databaseName, userPassword);
-		MongoClientOptions options =  new MongoClientOptions.Builder().serverSelectionTimeout(waitingConnectionTime).maxConnectionLifeTime(3000).build();
-//		System.out.println("connectTimeout: " + options.getConnectTimeout() + "maxConnectionLifeTime" + options.getMaxConnectionLifeTime());
+		MongoClientOptions options =  new MongoClientOptions.Builder().serverSelectionTimeout(waitingConnectionTime).build();
+
 		mongoClient = new MongoClient(new ServerAddress(ip, port), Arrays.asList(credential), options);
 
 		database = mongoClient.getDatabase(databaseName);
@@ -84,7 +84,7 @@ public class MongoMetadataStore implements MetadataStore {
 	@Override
 	public void close() {
 		
-		if(connectionIsUp()) {
+		if(mongoClient != null) {
 			mongoClient.close();
 		}
 		
