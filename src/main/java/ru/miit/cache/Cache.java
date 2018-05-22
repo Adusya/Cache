@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +23,7 @@ import ru.miit.cacheexception.CacheStartFailedException;
 import ru.miit.circiutbreaker.CircuitBreaker;
 import ru.miit.diskcache.DiskCache;
 import ru.miit.metadatastore.MetadataStore;
+import ru.miit.metadatastore.MongoMetadataStore;
 
 public class Cache {
 
@@ -32,20 +34,19 @@ public class Cache {
 	private CacheProperties cacheProperties;
 	public Boolean isUp = false;
 
-	public ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
+	public ExecutorService executor = Executors.newFixedThreadPool(20);
 	
 	final static public String defaultNodeName = "general";
 
-	public Cache(CircuitBreaker circuitBreaker, CacheProperties cacheProperties) {
+	public Cache(CacheProperties cacheProperties) {
 
 		this.cacheProperties = cacheProperties;
 		
-		try {
-			metaDatabase = circuitBreaker.getMetadataStore();
+		metaDatabase = new MongoMetadataStore(cacheProperties.getMongoProperties());
+		if (metaDatabase.connectionIsUp()) {
 			isUp = true;
-		} catch (CacheStartFailedException e) {
+		} else {
 			isUp = false;
-			loggerCache.log(Level.SEVERE, "Cache didn't start. " + e.getMessage());
 		}
 
 		diskCache = new DiskCache(cacheProperties.getCacheDirectory());
@@ -105,8 +106,18 @@ public class Cache {
 
 		}
 		
-		CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> put(idInCache, parameters), executor);
+		ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
 
+		
+		CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> put(idInCache, parameters), executorService);
+		long startTime = System.currentTimeMillis();
+		executorService.shutdown();
+		try {
+			executorService.awaitTermination(20000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			loggerCache.log(Level.SEVERE, e.getMessage());
+		}
+		System.out.println("result time: " + (System.currentTimeMillis() - startTime));
 		return future;
 
 	}
@@ -418,15 +429,21 @@ public class Cache {
 
 	public void close() {
 
+
+		if (metaDatabase != null)
+			metaDatabase.close();
+
+	}
+	
+	public void shutdown() {
+		
 		executor.shutdown();
 		try {
 			executor.awaitTermination(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			loggerCache.log(Level.SEVERE, e.getMessage());
 		}
-		if (metaDatabase != null)
-			metaDatabase.close();
-
+		
 	}
 
 }

@@ -12,15 +12,19 @@ public class CacheInstance {
 	TimeChecker timeChecker;
 	CircuitBreaker circuitBreaker;
 	
+	Cache cache;
+	
 	public CacheInstance(String configFilePath) throws CacheStartFailedException {
 		
 		try {
 			this.cacheProperties = new CacheProperties(configFilePath);
-			circuitBreaker = new CircuitBreaker(cacheProperties.getMongoProperties());
+//			circuitBreaker = new CircuitBreaker(cacheProperties.getMongoProperties());
+			
+			cache = new Cache(cacheProperties);
 			
 			if (cacheProperties.getTimeCheckerProperties().isEnable()) {
 				timeChecker = new TimeChecker(cacheProperties.getTimeCheckerProperties());
-				timeChecker.start(circuitBreaker, cacheProperties);
+				timeChecker.start(cache, cacheProperties);
 			}
 			
 		} catch (CachePropertiesException e) {
@@ -34,9 +38,7 @@ public class CacheInstance {
 		
 	}
 	
-	public Cache getCache() {
-		
-		Cache cache = new Cache(circuitBreaker, cacheProperties);		
+	public Cache getCache() {	
 		
 		return cache;
 		
@@ -45,6 +47,7 @@ public class CacheInstance {
 	public void close() {
 		
 		timeChecker.close();
+		cache.close();
 		
 	}
 }

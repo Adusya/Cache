@@ -42,9 +42,9 @@ public class CacheProperties {
 	public TimeCheckerProperties timeCheckerProperties;
 
 	// TODO сделать проверку на валидность конф файла
-	public CacheProperties(final String confifFilePath) throws CachePropertiesException {
+	public CacheProperties(final String configFilePath) throws CachePropertiesException {
 
-		File xmlFile = new File(confifFilePath);
+		File xmlFile = new File(configFilePath);
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
 		Document document = null;
