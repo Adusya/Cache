@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
@@ -31,7 +32,7 @@ public class DiskCache {
 	//
 	// }
 
-	public void get(final String fullFileName, OutputStream os) throws IOException {
+	public synchronized void get(final String fullFileName, OutputStream os) throws IOException {
 
 		try (FileInputStream fis = new FileInputStream(fullFileName);
 				FileChannel filechannel = fis.getChannel();

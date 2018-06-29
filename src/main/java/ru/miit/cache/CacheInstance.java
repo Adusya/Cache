@@ -46,8 +46,11 @@ public class CacheInstance {
 	
 	public void close() {
 		
-		timeChecker.close();
-		cache.close();
+		if (timeChecker != null)
+			timeChecker.close();
+		
+		if (cache != null)
+			cache.close();
 		
 	}
 }

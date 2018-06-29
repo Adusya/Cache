@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.sql.Blob;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -17,6 +18,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 
+import ru.miit.accesscontroll.AccessController;
 import ru.miit.cacheexception.CacheGetException;
 import ru.miit.cacheexception.CacheMetadataStoreConnectionException;
 import ru.miit.cacheexception.CacheStartFailedException;
@@ -33,13 +35,15 @@ public class Cache {
 	private DiskCache diskCache;
 	private CacheProperties cacheProperties;
 	public Boolean isUp = false;
+	
+	public AccessController controller = new AccessController();
 
-	public ExecutorService executor = Executors.newFixedThreadPool(20);
+	public ExecutorService executor = Executors.newFixedThreadPool(200);
 	
 	final static public String defaultNodeName = "general";
 
 	public Cache(CacheProperties cacheProperties) {
-
+		System.out.println("cache created");
 		this.cacheProperties = cacheProperties;
 		
 		metaDatabase = new MongoMetadataStore(cacheProperties.getMongoProperties());
@@ -94,30 +98,8 @@ public class Cache {
 
 	public CompletableFuture<Boolean> putAsync(final String idInCache, final Map<String, Object> parameters) {
 
-		if (!connectionIsUp()) {
-			loggerCache.log(Level.SEVERE, "requested connection is closed.");
-			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
-		}
+		CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> put(idInCache, parameters), executor);
 
-		if (idInCache == null) {
-
-			loggerCache.log(Level.SEVERE, "Illegal object id value. Id is null.");
-			throw new IllegalArgumentException("The object id can't be empty. ");
-
-		}
-		
-		ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
-
-		
-		CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> put(idInCache, parameters), executorService);
-		long startTime = System.currentTimeMillis();
-		executorService.shutdown();
-		try {
-			executorService.awaitTermination(20000, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			loggerCache.log(Level.SEVERE, e.getMessage());
-		}
-		System.out.println("result time: " + (System.currentTimeMillis() - startTime));
 		return future;
 
 	}
@@ -139,8 +121,10 @@ public class Cache {
 		String location = parameters.get(CacheParamName.location).toString();
 		String fullLocation = location + idInCache;
 
-		try {
-			diskCache.get(fullLocation, out);
+//		try {
+			
+			controller.get(idInCache, fullLocation, out);
+//			diskCache.get(fullLocation, out);
 
 			String contentType = parameters.get(CacheParamName.contentType).toString();
 			response.setContentType(contentType);
@@ -149,11 +133,11 @@ public class Cache {
 			response.setContentLength(size);
 
 			metaDatabase.updateTime(idInCache);
-		} catch (IOException e) {
-
-			loggerCache.log(Level.SEVERE, "Object cannot be taken from ru.miit.cache. " + e.toString());
-			throw new CacheGetException(e.getMessage());
-		}
+//		} catch (IOException e) {
+//
+//			loggerCache.log(Level.SEVERE, "Object cannot be taken from ru.miit.cache. " + e.toString());
+//			throw new CacheGetException(e.getMessage());
+//		}
 
 	}
 
@@ -241,7 +225,7 @@ public class Cache {
 		if (hash == null) {
 			return null;
 		} else {
-			return metaDatabase.getValue(id, CacheParamName.hash).toString();
+			return hash.toString();
 		}
 	}
 
@@ -443,6 +427,12 @@ public class Cache {
 		} catch (InterruptedException e) {
 			loggerCache.log(Level.SEVERE, e.getMessage());
 		}
+		
+	}
+	
+	public boolean writeToTwoStreams(String idInCache, Blob blobObject, OutputStream osServlet, FileOutputStream cacheOs) {
+		
+		return controller.put(idInCache, blobObject, osServlet, cacheOs);
 		
 	}
 
