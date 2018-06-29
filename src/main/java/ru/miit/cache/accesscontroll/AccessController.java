@@ -1,4 +1,4 @@
-package ru.miit.accesscontroll;
+package ru.miit.cache.accesscontroll;
 
 import java.io.File;
 import java.io.FileInputStream;

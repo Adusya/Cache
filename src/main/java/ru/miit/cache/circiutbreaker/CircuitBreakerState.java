@@ -1,4 +1,4 @@
-package ru.miit.circiutbreaker;
+package ru.miit.cache.circiutbreaker;
 
 public class CircuitBreakerState {
 	

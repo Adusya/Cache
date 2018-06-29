@@ -1,4 +1,4 @@
-package ru.miit.cacheexception;
+package ru.miit.cache.cacheexception;
 
 public class CacheGetException extends Exception{
 	

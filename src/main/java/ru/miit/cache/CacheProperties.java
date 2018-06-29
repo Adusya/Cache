@@ -16,9 +16,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import ru.miit.cacheexception.CachePropertiesException;
-import ru.miit.metadatastore.MongoProperties;
-import ru.miit.timechecker.TimeCheckerProperties;
+import ru.miit.cache.cacheexception.CachePropertiesException;
+import ru.miit.cache.metadatastore.MongoProperties;
+import ru.miit.cache.timechecker.TimeCheckerProperties;
 
 public class CacheProperties {
 

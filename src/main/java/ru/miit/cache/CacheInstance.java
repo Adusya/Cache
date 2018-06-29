@@ -1,9 +1,9 @@
 package ru.miit.cache;
 
-import ru.miit.cacheexception.CachePropertiesException;
-import ru.miit.cacheexception.CacheStartFailedException;
-import ru.miit.circiutbreaker.CircuitBreaker;
-import ru.miit.timechecker.TimeChecker;
+import ru.miit.cache.cacheexception.CachePropertiesException;
+import ru.miit.cache.cacheexception.CacheStartFailedException;
+import ru.miit.cache.circiutbreaker.CircuitBreaker;
+import ru.miit.cache.timechecker.TimeChecker;
 
 public class CacheInstance {
 	

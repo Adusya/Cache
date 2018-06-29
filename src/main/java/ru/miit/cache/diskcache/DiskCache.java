@@ -1,4 +1,4 @@
-package ru.miit.diskcache;
+package ru.miit.cache.diskcache;
 
 import java.io.File;
 import java.io.FileInputStream;

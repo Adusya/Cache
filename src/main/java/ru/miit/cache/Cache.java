@@ -18,14 +18,14 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 
-import ru.miit.accesscontroll.AccessController;
-import ru.miit.cacheexception.CacheGetException;
-import ru.miit.cacheexception.CacheMetadataStoreConnectionException;
-import ru.miit.cacheexception.CacheStartFailedException;
-import ru.miit.circiutbreaker.CircuitBreaker;
-import ru.miit.diskcache.DiskCache;
-import ru.miit.metadatastore.MetadataStore;
-import ru.miit.metadatastore.MongoMetadataStore;
+import ru.miit.cache.accesscontroll.AccessController;
+import ru.miit.cache.cacheexception.CacheGetException;
+import ru.miit.cache.cacheexception.CacheMetadataStoreConnectionException;
+import ru.miit.cache.cacheexception.CacheStartFailedException;
+import ru.miit.cache.circiutbreaker.CircuitBreaker;
+import ru.miit.cache.diskcache.DiskCache;
+import ru.miit.cache.metadatastore.MetadataStore;
+import ru.miit.cache.metadatastore.MongoMetadataStore;
 
 public class Cache {
 

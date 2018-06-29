@@ -1,4 +1,4 @@
-package ru.miit.accesscontroll;
+package ru.miit.cache.accesscontroll;
 
 public class Entry {
 

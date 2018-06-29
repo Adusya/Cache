@@ -1,4 +1,4 @@
-package ru.miit.timechecker;
+package ru.miit.cache.timechecker;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import ru.miit.cache.Cache;
 import ru.miit.cache.CacheProperties;
-import ru.miit.circiutbreaker.CircuitBreaker;
+import ru.miit.cache.circiutbreaker.CircuitBreaker;
 
 public class TimeChecker {
 

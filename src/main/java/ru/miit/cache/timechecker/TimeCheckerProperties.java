@@ -1,4 +1,4 @@
-package ru.miit.timechecker;
+package ru.miit.cache.timechecker;
 
 public class TimeCheckerProperties {
 	

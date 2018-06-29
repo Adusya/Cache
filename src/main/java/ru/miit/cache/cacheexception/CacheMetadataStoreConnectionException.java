@@ -1,17 +1,17 @@
-package ru.miit.cacheexception;
+package ru.miit.cache.cacheexception;
 
-public class CacheStartFailedException extends Exception {
+public class CacheMetadataStoreConnectionException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
 	private int errorCode;
 	
-    public CacheStartFailedException(final String message)
+    public CacheMetadataStoreConnectionException(final String message)
     {
         this(0, "Cache cannot be created. " + message);
     }
  
-    public CacheStartFailedException(final int errorCode, final String message)
+    public CacheMetadataStoreConnectionException(final int errorCode, final String message)
     {
         super(message);
 
@@ -22,6 +22,5 @@ public class CacheStartFailedException extends Exception {
     {
         return errorCode;
     }
-	
 	
 }

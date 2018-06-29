@@ -1,4 +1,4 @@
-package ru.miit.metadatastore;
+package ru.miit.cache.metadatastore;
 
 public class MongoParamName {
 

@@ -1,8 +1,8 @@
-package ru.miit.metadatastore;
+package ru.miit.cache.metadatastore;
 
 import java.util.Map;
 
-import ru.miit.cacheexception.CachePropertiesException;
+import ru.miit.cache.cacheexception.CachePropertiesException;
 
 public class MongoProperties {
 
