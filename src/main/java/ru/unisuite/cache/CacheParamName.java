@@ -1,9 +1,8 @@
-package ru.miit.cache.metadatastore;
+package ru.unisuite.cache;
 
-public class MongoParamName {
+public class CacheParamName {
 
-	final static public String id = "_id"
-			, idInCache = "id"
+	final static public String id = "id"
 			, fileName = "fileName"
 			, size = "size"
 			, hash = "hash"
@@ -11,16 +10,20 @@ public class MongoParamName {
 			, creatingTime = "creatingTime"
 			, updateTime = "updateTime"
 			, contentType = "contentType"
+			, capacity = "capacity"
+			, cacheDirectory = "cacheDirectory"
+			, dbCollection = "dbCollectionName"
+			, name = "name"
 			, node = "node"
 			, directory = "directory"
 			, type = "type"
 			, folder = "folder"
 			, timeToLive = "timeToLive"
 			, timeToIdle = "timeToIdle"
-			, statictics = "statictics"
 			, cacheHits = "cacheHits"
 			, cacheMisses = "cacheMisses"
-			, pending = "pending"
+			, general = "general"
+			, mongo = "mongo"			
 			, dbName = "dbName"
 			, dbCollectionName = "dbCollectionName"
 			, statisticsCollectionName = "statisticsCollectionName"
@@ -30,7 +33,9 @@ public class MongoParamName {
 			, userName = "userName"
 			, userPassword = "userPassword"
 			, errorsLimit = "errorsLimit"
+			, timeChecker ="timeChecker"
+			, enable ="enable"
+			, checkPeriod ="checkPeriod"
 			, waitingConnectionTime = "waitingConnectionTime"
 			, periodCheckConnectionTime = "periodCheckConnectionTime";
-	
 }

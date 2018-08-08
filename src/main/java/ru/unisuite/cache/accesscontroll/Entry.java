@@ -1,4 +1,4 @@
-package ru.miit.cache.accesscontroll;
+package ru.unisuite.cache.accesscontroll;
 
 public class Entry {
 

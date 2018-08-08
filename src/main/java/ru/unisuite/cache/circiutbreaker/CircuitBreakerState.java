@@ -1,4 +1,4 @@
-package ru.miit.cache.circiutbreaker;
+package ru.unisuite.cache.circiutbreaker;
 
 public class CircuitBreakerState {
 	

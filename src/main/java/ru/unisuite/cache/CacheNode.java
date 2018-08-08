@@ -1,4 +1,4 @@
-package ru.miit.cache;
+package ru.unisuite.cache;
 
 public class CacheNode {
 	

@@ -1,4 +1,4 @@
-package ru.miit.cache;
+package ru.unisuite.cache;
 
 import java.io.IOException;
 import java.util.logging.FileHandler;

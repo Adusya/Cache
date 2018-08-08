@@ -1,4 +1,4 @@
-package ru.miit.cache.timechecker;
+package ru.unisuite.cache.timechecker;
 
 public class TimeCheckerProperties {
 	

@@ -1,4 +1,4 @@
-package ru.miit.cache.metadatastore;
+package ru.unisuite.cache.metadatastore;
 
 import java.util.ArrayList;
 import java.util.Arrays;

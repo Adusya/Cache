@@ -1,4 +1,4 @@
-package ru.miit.cache.cacheexception;
+package ru.unisuite.cache.cacheexception;
 
 public class CacheGetException extends Exception{
 	

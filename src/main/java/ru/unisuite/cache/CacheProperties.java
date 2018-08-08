@@ -1,4 +1,4 @@
-package ru.miit.cache;
+package ru.unisuite.cache;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,9 +16,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import ru.miit.cache.cacheexception.CachePropertiesException;
-import ru.miit.cache.metadatastore.MongoProperties;
-import ru.miit.cache.timechecker.TimeCheckerProperties;
+import ru.unisuite.cache.cacheexception.CachePropertiesException;
+import ru.unisuite.cache.metadatastore.MongoProperties;
+import ru.unisuite.cache.timechecker.TimeCheckerProperties;
 
 public class CacheProperties {
 

@@ -1,9 +1,9 @@
-package ru.miit.cache.circiutbreaker;
+package ru.unisuite.cache.circiutbreaker;
 
-import ru.miit.cache.cacheexception.CacheStartFailedException;
-import ru.miit.cache.metadatastore.MetadataStore;
-import ru.miit.cache.metadatastore.MongoMetadataStore;
-import ru.miit.cache.metadatastore.MongoProperties;
+import ru.unisuite.cache.cacheexception.CacheStartFailedException;
+import ru.unisuite.cache.metadatastore.MetadataStore;
+import ru.unisuite.cache.metadatastore.MongoMetadataStore;
+import ru.unisuite.cache.metadatastore.MongoProperties;
 
 public class CircuitBreaker {
 

@@ -1,8 +1,8 @@
-package ru.miit.cache.metadatastore;
+package ru.unisuite.cache.metadatastore;
 
 import java.util.Map;
 
-import ru.miit.cache.cacheexception.CachePropertiesException;
+import ru.unisuite.cache.cacheexception.CachePropertiesException;
 
 public class MongoProperties {
 

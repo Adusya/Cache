@@ -1,4 +1,4 @@
-package ru.miit.cache;
+package ru.unisuite.cache;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,14 +18,14 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 
-import ru.miit.cache.accesscontroll.AccessController;
-import ru.miit.cache.cacheexception.CacheGetException;
-import ru.miit.cache.cacheexception.CacheMetadataStoreConnectionException;
-import ru.miit.cache.cacheexception.CacheStartFailedException;
-import ru.miit.cache.circiutbreaker.CircuitBreaker;
-import ru.miit.cache.diskcache.DiskCache;
-import ru.miit.cache.metadatastore.MetadataStore;
-import ru.miit.cache.metadatastore.MongoMetadataStore;
+import ru.unisuite.cache.accesscontroll.AccessController;
+import ru.unisuite.cache.cacheexception.CacheGetException;
+import ru.unisuite.cache.cacheexception.CacheMetadataStoreConnectionException;
+import ru.unisuite.cache.cacheexception.CacheStartFailedException;
+import ru.unisuite.cache.circiutbreaker.CircuitBreaker;
+import ru.unisuite.cache.diskcache.DiskCache;
+import ru.unisuite.cache.metadatastore.MetadataStore;
+import ru.unisuite.cache.metadatastore.MongoMetadataStore;
 
 public class Cache {
 
@@ -135,7 +135,7 @@ public class Cache {
 			metaDatabase.updateTime(idInCache);
 //		} catch (IOException e) {
 //
-//			loggerCache.log(Level.SEVERE, "Object cannot be taken from ru.miit.cache. " + e.toString());
+//			loggerCache.log(Level.SEVERE, "Object cannot be taken from ru.unisuite.cache. " + e.toString());
 //			throw new CacheGetException(e.getMessage());
 //		}
 
