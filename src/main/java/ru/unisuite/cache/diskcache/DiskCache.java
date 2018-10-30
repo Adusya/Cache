@@ -3,67 +3,29 @@ package ru.unisuite.cache.diskcache;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.AsynchronousByteChannel;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 
-public class DiskCache {
+public interface DiskCache {
+	
+	public String getDirectory();
 
-	final public String directory;
+	public long getMaxSize();
 
-	public DiskCache(String directory) {
-		this.directory = directory;
-	}
+	public int getAppVersion();
 
-	// public void put(final String location, final String hashName, final
-	// InputStream is) {
-	//
-	//
-	//
-	// File file = new File(location + hashName);
-	//
-	// try (OutputStream os = new FileOutputStream(file)) {
-	//
-	// IOUtils.copy(is, os);
-	// } catch (IOException e) {
-	// e.printStackTrace();
-	// }
-	//
-	// }
+	public InputStream get(final String fullFileName) throws IOException;
+	
+	public void put(String key, InputStream is) throws IOException;
+	
+	public void writeToStream(FileInputStream fis, OutputStream os) throws IOException;
 
-	public synchronized void get(final String fullFileName, OutputStream os) throws IOException {
+	public boolean delete(final File fileToDelete) throws IOException;
+	
+	public void close() throws IOException;
+	
+	public OutputStream openStream(String key) throws IOException;
 
-		try (FileInputStream fis = new FileInputStream(fullFileName);
-				FileChannel filechannel = fis.getChannel();
-				FileLock lock = filechannel.lock(0, Long.MAX_VALUE, true)) {
-
-			writeToStream(fis, os);
-
-		}
-
-	}
-
-	public void writeToStream(FileInputStream fis, OutputStream os) throws IOException {
-
-		int length;
-		int bufSize = 4096;
-		byte buffer[] = new byte[bufSize];
-		while ((length = fis.read(buffer, 0, bufSize)) != -1) {
-			os.write(buffer, 0, length);
-		}
-		os.flush();
-
-	}
-
-	public boolean delete(final File fileToDelete) {
-
-		return fileToDelete.delete();
-	}
-
-	public boolean exists(final File file) {
-
-		return file.exists();
-
-	}
+	boolean exists(String key);
+	
 }
