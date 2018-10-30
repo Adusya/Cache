@@ -1,5 +1,6 @@
 package ru.unisuite.cache.timechecker;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -7,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import ru.unisuite.cache.Cache;
 import ru.unisuite.cache.CacheProperties;
+import ru.unisuite.cache.cacheexception.CacheMetadataStoreConnectionException;
 import ru.unisuite.cache.circiutbreaker.CircuitBreaker;
 
 public class TimeChecker {
@@ -28,7 +30,15 @@ public class TimeChecker {
 					List<Object> overdueList = cache.getOverdueList();
 					for (Object ItemToDelete : overdueList) {
 						if (cache.isUp) {
-							cache.deleteItem(ItemToDelete.toString());
+							try {
+								cache.deleteItem(ItemToDelete.toString());
+							} catch (CacheMetadataStoreConnectionException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						}
 					}
 

@@ -1,5 +1,7 @@
 package ru.unisuite.cache;
 
+import java.io.IOException;
+
 import ru.unisuite.cache.cacheexception.CachePropertiesException;
 import ru.unisuite.cache.cacheexception.CacheStartFailedException;
 import ru.unisuite.cache.circiutbreaker.CircuitBreaker;
@@ -12,7 +14,7 @@ public class CacheInstance {
 	TimeChecker timeChecker;
 	CircuitBreaker circuitBreaker;
 	
-	Cache cache;
+	private Cache cache;
 	
 	public CacheInstance(String configFilePath) throws CacheStartFailedException {
 		
@@ -22,12 +24,12 @@ public class CacheInstance {
 			
 			cache = new Cache(cacheProperties);
 			
-			if (cacheProperties.getTimeCheckerProperties().isEnable()) {
-				timeChecker = new TimeChecker(cacheProperties.getTimeCheckerProperties());
-				timeChecker.start(cache, cacheProperties);
-			}
+//			if (cacheProperties.getTimeCheckerProperties().isEnable()) {
+//				timeChecker = new TimeChecker(cacheProperties.getTimeCheckerProperties());
+//				timeChecker.start(cache, cacheProperties);
+//			}
 			
-		} catch (CachePropertiesException e) {
+		} catch (CachePropertiesException | IOException e) {
 			throw new CacheStartFailedException("Cache cannot start. " + e.getMessage());
 		}
 	}
