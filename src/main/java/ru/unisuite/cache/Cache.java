@@ -17,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,17 +40,17 @@ public class Cache {
 	private DiskCache diskCache;
 	private CacheProperties cacheProperties;
 	public Boolean isUp = false;
-	
-//	public AccessController controller = new AccessController();
+
+	// public AccessController controller = new AccessController();
 
 	public ExecutorService executor = Executors.newFixedThreadPool(200);
-	
+
 	final static public String defaultNodeName = "general";
 
 	public Cache(CacheProperties cacheProperties) throws IOException {
 		System.out.println("cache created");
 		this.cacheProperties = cacheProperties;
-		
+
 		metaDatabase = new MongoMetadataStore(cacheProperties.getMongoProperties());
 		if (metaDatabase.connectionIsUp()) {
 			isUp = true;
@@ -57,11 +58,11 @@ public class Cache {
 			isUp = false;
 		}
 
-		diskCache = new MainDiskCache(cacheProperties.getCacheDirectory(), 1, 800000L);
+		diskCache = new MainDiskCache(cacheProperties.getCacheDirectory(), 1, 550000L);
 
 	}
 
-	public Boolean put(final String idInCache, String fullAdress, Map<String, Object> parameters)
+	public Boolean put(final String idInCache, Map<String, Object> parameters)
 			throws CacheMetadataStoreConnectionException, IOException {
 
 		if (!connectionIsUp()) {
@@ -76,39 +77,40 @@ public class Cache {
 
 		}
 
-//		try (InputStream is = new FileInputStream(new File(fullAdress))) {
-//			
-//			diskCache.put(idInCache, is);
-			
-			String type = parameters.get(CacheParamName.type).toString();
-			CacheNode node = cacheProperties.getNodeByName(type);
+		// try (InputStream is = new FileInputStream(new File(fullAdress))) {
+		//
+		// diskCache.put(idInCache, is);
 
-			String cacheDiractory = cacheProperties.getCacheDirectory();
-			String nodeDirectory = node.getDirectory();
-			String location = cacheDiractory + nodeDirectory + File.separator;
+		String type = parameters.get(CacheParamName.type).toString();
+		CacheNode node = cacheProperties.getNodeByName(type);
 
-			parameters.put(CacheParamName.location, location);
+		String cacheDiractory = cacheProperties.getCacheDirectory();
+		String nodeDirectory = node.getDirectory();
+		String location = cacheDiractory + nodeDirectory + File.separator;
 
-			parameters.put(CacheParamName.node, node.getNodeName());
-			parameters.put(CacheParamName.folder, nodeDirectory);
+		parameters.put(CacheParamName.location, location);
 
-			parameters.put(CacheParamName.timeToLive, node.getTimeToLive());
-			parameters.put(CacheParamName.timeToIdle, node.getTimeToIdle());
+		parameters.put(CacheParamName.node, node.getNodeName());
+		parameters.put(CacheParamName.folder, nodeDirectory);
 
-			parameters.put(CacheParamName.id, idInCache);
-			
-			metaDatabase.put(idInCache, parameters);
-			
-			return true;
-//			
-//		}
+		parameters.put(CacheParamName.timeToLive, node.getTimeToLive());
+		parameters.put(CacheParamName.timeToIdle, node.getTimeToIdle());
+
+		parameters.put(CacheParamName.id, idInCache);
+
+		metaDatabase.put(idInCache, parameters);
+
+		return true;
+		//
+		// }
 	}
 
-	public CompletableFuture<Boolean> putAsync(final String idInCache, String fullAdress, final Map<String, Object> parameters) {
+	public CompletableFuture<Boolean> putAsync(final String idInCache,
+			final Map<String, Object> parameters) {
 
 		CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
 			try {
-				return put(idInCache, fullAdress, parameters);
+				return put(idInCache, parameters);
 			} catch (CacheMetadataStoreConnectionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -123,7 +125,7 @@ public class Cache {
 
 	}
 
-	public void get(final String idInCache, OutputStream out, HttpServletResponse response)
+	public boolean get(final String idInCache, OutputStream out, HttpServletResponse response)
 			throws CacheGetException, CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
@@ -135,20 +137,27 @@ public class Cache {
 			logger.log(Level.SEVERE, "Illegal object id value. Id is null.");
 			throw new IllegalArgumentException("The object id can't be empty. ");
 		}
-		Map<String, Object> parameters = metaDatabase.getParameters(idInCache);
 
-		String location = parameters.get(CacheParamName.location).toString();
-		String fullLocation = location + idInCache;
+		InputStream is = null;
 
-//		try {
-			
-//			controller.get(idInCache, fullLocation, out);
-//			usualDiskCache.get(fullLocation, out);
-		
-		
-		try (InputStream is = diskCache.get(idInCache)) {
-			
+		try {
+
+			int counter = 1;
+
+			while ((is = diskCache.get(idInCache)) == null) {
+
+				Thread.sleep(100 * counter);
+				is = diskCache.get(idInCache);
+
+				if (counter >= 6) {
+					return false;
+				}
+				counter++;
+			}
+
 			IOUtils.copy(is, out);
+
+			Map<String, Object> parameters = metaDatabase.getParameters(idInCache);
 			String contentType = parameters.get(CacheParamName.contentType).toString();
 			response.setContentType(contentType);
 
@@ -156,18 +165,26 @@ public class Cache {
 			response.setContentLength(size);
 
 			metaDatabase.updateTime(idInCache);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 
-			
-//		} catch (IOException e) {
-//
-//			logger.log(Level.SEVERE, "Object cannot be taken from ru.unisuite.cache. " + e.toString());
-//			throw new CacheGetException(e.getMessage());
-//		}
+			return true;
+		} catch (IOException | InterruptedException e) {
+			throw new CacheGetException("Cache cannot get the object" + e.getMessage());
+		} finally {
+			if (is != null)
+				try {
+					is.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+
+		// } catch (IOException e) {
+		//
+		// logger.log(Level.SEVERE, "Object cannot be taken from ru.unisuite.cache. " +
+		// e.toString());
+		// throw new CacheGetException(e.getMessage());
+		// }
 
 	}
 
@@ -177,11 +194,12 @@ public class Cache {
 			logger.log(Level.SEVERE, "requested connection is closed.");
 			throw new CacheMetadataStoreConnectionException("Connection is closed. ");
 		}
-
+		
 		if (metaDatabase.exists(id)) {
 
-//			String location = metaDatabase.getValue(id, CacheParamName.location).toString();
-//			File file = new File(location + id);
+			// String location = metaDatabase.getValue(id,
+			// CacheParamName.location).toString();
+			// File file = new File(location + id);
 
 			if (diskCache.exists(id)) {
 
@@ -215,18 +233,19 @@ public class Cache {
 		return length;
 	}
 
-	private void trimToSize(final Map<String, Object> parameters) throws CacheMetadataStoreConnectionException, IOException {
+	private void trimToSize(final Map<String, Object> parameters)
+			throws CacheMetadataStoreConnectionException, IOException {
 
 		// нахождение размера файла
 		long fileSize = Long.parseLong(parameters.get(CacheParamName.size).toString());
 
-		// определение объема нода 
+		// определение объема нода
 		Map<String, CacheNode> nodesCollection = cacheProperties.getCacheNodes();
 
 		CacheNode node = cacheProperties.getNodeByName(parameters.get(CacheParamName.type).toString());
-		
+
 		Long capacity = node.getCapacity();
-		
+
 		// местонахождение нода
 		String folder = parameters.get(CacheParamName.folder).toString();
 		String cacheNodeLocation = diskCache.getDirectory() + folder;
@@ -269,7 +288,6 @@ public class Cache {
 	}
 
 	public Boolean deleteItem(final String id) throws CacheMetadataStoreConnectionException, IOException {
-																							
 
 		if (!connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
@@ -277,11 +295,11 @@ public class Cache {
 		}
 
 		File fileToDelete = new File(metaDatabase.getValue(id, CacheParamName.location) + id);
-				
+
 		boolean result = diskCache.delete(fileToDelete);
 		int i = 0;
-		
-		while(!result && i < 5 && fileToDelete.exists()) {
+
+		while (!result && i < 5 && fileToDelete.exists()) {
 			try {
 				Thread.sleep(1000 * i);
 			} catch (InterruptedException e) {
@@ -290,17 +308,17 @@ public class Cache {
 			i++;
 			result = diskCache.delete(fileToDelete);
 		}
-		
+
 		if (result || !fileToDelete.exists()) {
 			metaDatabase.delete(id);
 		}
-		
+
 		return result;
 
 	}
-	
+
 	public CompletableFuture<Boolean> deleteItemAsync(final String id) {
-		
+
 		CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
 			try {
 				return deleteItem(id);
@@ -313,9 +331,9 @@ public class Cache {
 			}
 			return null;
 		}, executor);
-		
+
 		return future;
-		
+
 	}
 
 	public void applyDowntine(final long downtime) throws CacheMetadataStoreConnectionException {
@@ -330,17 +348,17 @@ public class Cache {
 		}
 
 	}
-	
+
 	public List<Object> getOverdueList() {
-		
+
 		return metaDatabase.getOverdueList();
-		
+
 	}
-	
+
 	public void allowAccess(String idInCache) {
-		
+
 		metaDatabase.allowAccess(idInCache);
-		
+
 	}
 
 	private Map<String, String> getNodeNameMap() {
@@ -366,9 +384,9 @@ public class Cache {
 	public FileOutputStream getFileOutputStream(String nodeName, String idInCache) throws FileNotFoundException {
 
 		String location = getFileLocationByNodeName(nodeName);
-		
+
 		checkForFolder(location);
-		
+
 		String fullLocation = getFileLocationByNodeName(nodeName) + idInCache;
 
 		FileOutputStream fos = new FileOutputStream(new File(fullLocation));
@@ -441,23 +459,22 @@ public class Cache {
 		metaDatabase.clearStatistics();
 
 	}
-	
+
 	public boolean connectionIsUp() {
-		
+
 		if (metaDatabase == null) {
-			return false;			
+			return false;
 		} else {
 			return metaDatabase.connectionIsUp();
 		}
-		
+
 	}
 
 	public void close() {
 
-
 		if (metaDatabase != null)
 			metaDatabase.close();
-		
+
 		if (diskCache != null)
 			try {
 				diskCache.close();
@@ -466,20 +483,21 @@ public class Cache {
 			}
 
 	}
-	
+
 	public void shutdown() {
-		
+
 		executor.shutdown();
 		try {
 			executor.awaitTermination(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			logger.log(Level.SEVERE, e.getMessage());
 		}
-		
+
 	}
-	
-	public void writeToTwoStreams(String idInCache, Blob blobObject, OutputStream os1, OutputStream os2) throws IOException, SQLException {
-		
+
+	public void writeToTwoStreams(String idInCache, Blob blobObject, OutputStream os1, OutputStream os2)
+			throws IOException, SQLException {
+
 		int length;
 		int bufSize = 4096;
 		byte buffer[] = new byte[bufSize];
@@ -491,13 +509,13 @@ public class Cache {
 			os1.flush();
 			os2.flush();
 		}
-		
+
 	}
-	
+
 	public OutputStream openStream(String key) throws IOException {
-		
+
 		return diskCache.openStream(key);
-		
+
 	}
 
 }

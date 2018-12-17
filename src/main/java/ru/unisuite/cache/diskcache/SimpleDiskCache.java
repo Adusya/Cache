@@ -100,6 +100,9 @@ public class SimpleDiskCache {
 
 	public OutputStream openStream(String key, Map<String, ? extends Serializable> metadata) throws IOException {
 		DiskLruCache.Editor editor = diskLruCache.edit(toInternalKey(key));
+		if (editor == null) {
+			return null;
+		}
 		try {
 			writeMetadata(metadata, editor);
 			BufferedOutputStream bos = new BufferedOutputStream(editor.newOutputStream(VALUE_IDX));
