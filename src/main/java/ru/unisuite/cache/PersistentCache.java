@@ -32,9 +32,9 @@ import ru.unisuite.cache.diskcache.MainDiskCache;
 import ru.unisuite.cache.metadatastore.MetadataStore;
 import ru.unisuite.cache.metadatastore.MongoMetadataStore;
 
-public class Cache {
+public class PersistentCache {
 
-	private final Logger logger = CacheLogger.getLogger(Cache.class.getName());
+	private final Logger logger = CacheLogger.getLogger(PersistentCache.class.getName());
 
 	private MetadataStore metaDatabase;
 	private DiskCache diskCache;
@@ -47,7 +47,7 @@ public class Cache {
 
 	final static public String defaultNodeName = "general";
 
-	public Cache(CacheProperties cacheProperties) throws IOException {
+	public PersistentCache(CacheProperties cacheProperties) throws IOException {
 		System.out.println("cache created");
 		this.cacheProperties = cacheProperties;
 
@@ -58,7 +58,7 @@ public class Cache {
 			isUp = false;
 		}
 
-		diskCache = new MainDiskCache(cacheProperties.getCacheDirectory(), 1, 550000L);
+		diskCache = new MainDiskCache(cacheProperties.getCacheDirectory(), 1, 5500000L);
 
 	}
 
@@ -168,7 +168,7 @@ public class Cache {
 
 			return true;
 		} catch (IOException | InterruptedException e) {
-			throw new CacheGetException("Cache cannot get the object" + e.getMessage());
+			throw new CacheGetException("PersistentCache cannot get the object" + e.getMessage());
 		} finally {
 			if (is != null)
 				try {
@@ -394,7 +394,7 @@ public class Cache {
 		return fos;
 	}
 
-	public CacheStatist getStatistics() throws CacheMetadataStoreConnectionException {
+	public String getStatistics() throws CacheMetadataStoreConnectionException {
 
 		if (!connectionIsUp()) {
 			logger.log(Level.SEVERE, "requested connection is closed.");
@@ -406,7 +406,7 @@ public class Cache {
 		long cacheHits = Long.parseLong(statisticsMap.get(CacheParamName.cacheHits).toString());
 		long cacheMisses = Long.parseLong(statisticsMap.get(CacheParamName.cacheMisses).toString());
 
-		return new CacheStatist(cacheHits, cacheMisses);
+		return new CacheStatist(cacheHits, cacheMisses).toString();
 
 	}
 

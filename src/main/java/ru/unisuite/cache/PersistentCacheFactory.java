@@ -7,30 +7,30 @@ import ru.unisuite.cache.cacheexception.CacheStartFailedException;
 import ru.unisuite.cache.circiutbreaker.CircuitBreaker;
 import ru.unisuite.cache.timechecker.TimeChecker;
 
-public class CacheInstance {
+public class PersistentCacheFactory {
 	
 	public CacheProperties cacheProperties;
 	
 	TimeChecker timeChecker;
 	CircuitBreaker circuitBreaker;
 	
-	private Cache cache;
+	private PersistentCache persistentCache;
 	
-	public CacheInstance(String configFilePath) throws CacheStartFailedException {
+	public PersistentCacheFactory(String configFilePath) throws CacheStartFailedException {
 		
 		try {
 			this.cacheProperties = new CacheProperties(configFilePath);
 //			circuitBreaker = new CircuitBreaker(cacheProperties.getMongoProperties());
 			
-			cache = new Cache(cacheProperties);
+			persistentCache = new PersistentCache(cacheProperties);
 			
 //			if (cacheProperties.getTimeCheckerProperties().isEnable()) {
 //				timeChecker = new TimeChecker(cacheProperties.getTimeCheckerProperties());
-//				timeChecker.start(cache, cacheProperties);
+//				timeChecker.start(persistentCache, cacheProperties);
 //			}
 			
 		} catch (CachePropertiesException | IOException e) {
-			throw new CacheStartFailedException("Cache cannot start. " + e.getMessage());
+			throw new CacheStartFailedException("PersistentCache cannot start. " + e.getMessage());
 		}
 	}
 	
@@ -40,9 +40,9 @@ public class CacheInstance {
 		
 	}
 	
-	public Cache getCache() {	
+	public PersistentCache getCache() {	
 		
-		return cache;
+		return persistentCache;
 		
 	}
 	
@@ -51,8 +51,8 @@ public class CacheInstance {
 		if (timeChecker != null)
 			timeChecker.close();
 		
-		if (cache != null)
-			cache.close();
+		if (persistentCache != null)
+			persistentCache.close();
 		
 	}
 }
