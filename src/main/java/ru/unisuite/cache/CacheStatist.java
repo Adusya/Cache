@@ -14,7 +14,7 @@ public class CacheStatist {
 
 	public long getCacheHits() {
 		return cacheHits;
-	}
+	} 
 
 	public long getCacheMisses() {
 		return cacheMisses;
@@ -38,5 +38,10 @@ public class CacheStatist {
 
 		return ratio;
 	}
-
-}
+	
+	public String toString() {
+		
+		return "cacheHits: " + cacheHits + " cacheMisses: " + cacheMisses + " hitRatio: " + getCacheHitRatio();
+		
+	}
+ }

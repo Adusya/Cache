@@ -34,7 +34,7 @@ public class CircuitBreaker {
 			if (!metadataSotre.connectionIsUp()) {
 				
 				reOpen();
-				throw new CacheStartFailedException("Cache cannot connect to MongoDB.");
+				throw new CacheStartFailedException("PersistentCache cannot connect to MongoDB.");
 			}
 			
 			return metadataSotre;
@@ -50,7 +50,7 @@ public class CircuitBreaker {
 				if (!metadataSotre.connectionIsUp()) {
 					
 					increaseErrorsNumber();
-					throw new CacheStartFailedException("Cache cannot connect to MongoDB.");
+					throw new CacheStartFailedException("PersistentCache cannot connect to MongoDB.");
 				}
 				
 				reset();
@@ -60,7 +60,7 @@ public class CircuitBreaker {
 			
 		}
 		
-		throw new CacheStartFailedException("Cache cannot connect to MongoDB.");
+		throw new CacheStartFailedException("PersistentCache cannot connect to MongoDB.");
 		
 	}
 	
