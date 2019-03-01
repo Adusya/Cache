@@ -8,7 +8,7 @@ public class CacheMetadataStoreConnectionException extends RuntimeException {
 	
     public CacheMetadataStoreConnectionException(final String message)
     {
-        this(0, "Cache cannot be created. " + message);
+        this(0, "PersistentCache cannot be created. " + message);
     }
  
     public CacheMetadataStoreConnectionException(final int errorCode, final String message)
@@ -17,6 +17,10 @@ public class CacheMetadataStoreConnectionException extends RuntimeException {
 
         this.errorCode = errorCode;
     }
+    
+    public CacheMetadataStoreConnectionException(String message, Throwable cause) {
+		super(message, cause);
+	}
  
     public int getErrorCode()
     {

@@ -42,7 +42,7 @@ public class SimpleDiskCache {
 
 	public static synchronized SimpleDiskCache open(File dir, int appVersion, long maxSize) throws IOException {
 		if (usedDirs.contains(dir)) {
-			throw new IllegalStateException("Cache dir " + dir.getAbsolutePath() + " was used before.");
+			throw new IllegalStateException("PersistentCache dir " + dir.getAbsolutePath() + " was used before.");
 		}
 
 		usedDirs.add(dir);

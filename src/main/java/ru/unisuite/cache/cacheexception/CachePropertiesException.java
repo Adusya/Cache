@@ -17,6 +17,10 @@ public class CachePropertiesException extends CacheStartFailedException {
 
         this.errorCode = errorCode;
     }
+    
+    public CachePropertiesException(String message, Throwable cause) {
+  		super(message, cause);
+  	}
  
     public int getErrorCode()
     {

@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import ru.unisuite.cache.Cache;
+import ru.unisuite.cache.PersistentCache;
 import ru.unisuite.cache.CacheProperties;
 import ru.unisuite.cache.cacheexception.CacheMetadataStoreConnectionException;
 import ru.unisuite.cache.circiutbreaker.CircuitBreaker;
@@ -23,15 +23,15 @@ public class TimeChecker {
 		
 	}
 
-	public void start(Cache cache, CacheProperties cacheProperties) {
+	public void start(PersistentCache persistentCache, CacheProperties cacheProperties) {
 
 		Runnable pinger = new Runnable() {
 			public void run() {
-					List<Object> overdueList = cache.getOverdueList();
+					List<Object> overdueList = persistentCache.getOverdueList();
 					for (Object ItemToDelete : overdueList) {
-						if (cache.isUp) {
+						if (persistentCache.isUp) {
 							try {
-								cache.deleteItem(ItemToDelete.toString());
+								persistentCache.deleteItem(ItemToDelete.toString());
 							} catch (CacheMetadataStoreConnectionException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
